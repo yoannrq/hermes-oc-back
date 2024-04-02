@@ -1,5 +1,7 @@
+import 'dotenv/config'
 import express from 'express';
-// import router from './app/router.js';
+import router from './app/router.js';
+import errorHandler from './app/middlewares/errorHandler.js'
 
 const app = express();
 
@@ -10,15 +12,14 @@ app.get('/', (req, res) => {
 // Ajout d'un body parser (avant le routeur)
 app.use(express.urlencoded({ extended: true }));
 
+// Middleware pour analyser le corps des requêtes au format JSON afin de les passer en objet JS dans req.body
 app.use(express.json());
 
 // Brancher le router
-// app.use(router);
+ app.use(router);
 
-// Brancher la page 404
-// app.use((req, res) => {
-//   res.status(404).render('404');
-// });
+// Brancher le middleware de gestion d'erreur
+app.use(errorHandler);
 
 // Lancer le serveur
 const port = process.env.PORT || 3000;
