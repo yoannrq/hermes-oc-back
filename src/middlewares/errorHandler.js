@@ -1,4 +1,4 @@
-export default (err, req, res, next) => {
+export default function errorHandler(err, req, res, next) {
   console.error(err);
 
   if (!err.status) {
@@ -20,4 +20,4 @@ export default (err, req, res, next) => {
       ...err,
     },
   });
-};
+}
