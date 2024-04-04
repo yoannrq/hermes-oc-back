@@ -6,7 +6,7 @@ import path from 'path';
 
 import { fileURLToPath } from 'url';
 
-import '../helpers/envLoader';
+import '../helpers/envLoader.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -69,12 +69,18 @@ const options = {
     components: {
 
       schemas,
-
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
     },
 
   },
 
-  apis: ['./app/routers/*.js'],
+  apis: ['./src/routers/*.js'],
 
 };
 
