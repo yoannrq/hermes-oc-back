@@ -25,12 +25,12 @@ model User {
   updatedAt         DateTime @updatedAt
 
   settings      Setting[]
-  roles         UserHasRole[]
-  conversations UserHasConversation[]
-  teams         UserHasTeam[]
-  specialities  UserHasSpeciality[]
-  patients      UserHasPatient[]
-  ownedTeams    Team[]
+  roles         Role[]         @relation("UserHasRole")
+  conversations Conversation[] @relation("UserHasConversation")
+  teams         Team[]         @relation("UserHasTeam")
+  specialities  Speciality[]   @relation("UserHasSpeciality")
+  patients      Patient[]      @relation("UserHasPatient")
+  ownedTeams    Team[]         @relation("TeamOwner")
 }
 
 model Setting {
@@ -55,34 +55,14 @@ model Role {
   id   Int    @id @default(autoincrement())
   name String
 
-  users UserHasRole[]
+  users User[] @relation("UserHasRole")
 }
 
 model Speciality {
   id   Int    @id @default(autoincrement())
   name String
 
-  users UserHasSpeciality[]
-}
-
-model UserHasSpeciality {
-  userId       Int
-  specialityId Int
-
-  user       User       @relation(fields: [userId], references: [id])
-  speciality Speciality @relation(fields: [specialityId], references: [id])
-
-  @@id([userId, specialityId])
-}
-
-model UserHasRole {
-  userId Int
-  roleId Int
-
-  user User @relation(fields: [userId], references: [id])
-  role Role @relation(fields: [roleId], references: [id])
-
-  @@id([userId, roleId])
+  users User[] @relation("UserHasSpeciality")
 }
 
 model Team {
@@ -94,33 +74,13 @@ model Team {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  owner User          @relation(fields: [ownerId], references: [id])
-  users UserHasTeam[]
-}
-
-model UserHasTeam {
-  userId Int
-  teamId Int
-
-  user User @relation(fields: [userId], references: [id])
-  team Team @relation(fields: [teamId], references: [id])
-
-  @@id([userId, teamId])
+  owner User   @relation("TeamOwner", fields: [ownerId], references: [id])
+  users User[] @relation("UserHasTeam")
 }
 
 model Conversation {
-  id    Int                   @id @default(autoincrement())
-  users UserHasConversation[]
-}
-
-model UserHasConversation {
-  userId         Int
-  conversationId Int
-
-  user         User         @relation(fields: [userId], references: [id])
-  conversation Conversation @relation(fields: [conversationId], references: [id])
-
-  @@id([userId, conversationId])
+  id    Int    @id @default(autoincrement())
+  users User[] @relation("UserHasConversation")
 }
 
 model Patient {
@@ -136,19 +96,9 @@ model Patient {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  zipCode  ZipCode          @relation(fields: [zipCodeId], references: [id])
+  zipCode  ZipCode   @relation(fields: [zipCodeId], references: [id])
   channels Channel[]
-  users    UserHasPatient[]
-}
-
-model UserHasPatient {
-  userId    Int
-  patientId Int
-
-  user    User    @relation(fields: [userId], references: [id])
-  patient Patient @relation(fields: [patientId], references: [id])
-
-  @@id([userId, patientId])
+  users    User[]    @relation("UserHasPatient")
 }
 
 model ZipCode {
@@ -156,8 +106,8 @@ model ZipCode {
   code   String @unique @db.VarChar(5)
   cityId Int
 
-  patients Patient[]
-  citiy    City      @relation(fields: [cityId], references: [id])
+  citiy   City      @relation(fields: [cityId], references: [id])
+  Patient Patient[]
 }
 
 model City {
