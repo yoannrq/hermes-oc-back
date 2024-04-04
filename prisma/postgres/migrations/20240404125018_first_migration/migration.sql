@@ -7,30 +7,30 @@ CREATE TABLE "User" (
     "rppsCode" VARCHAR(11),
     "profilePictureUrl" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL
 );
 
 CREATE TABLE "Setting" (
     "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "userId" INTEGER NOT NULL,
     "settingKeyId" INTEGER NOT NULL,
-    "value" TEXT NOT NULL,
+    "value" TEXT NOT NULL
 );
 
 CREATE TABLE "SettingKey" (
     "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "name" TEXT NOT NULL,
-    "defaultValue" TEXT NOT NULL,
+    "defaultValue" TEXT NOT NULL
 );
 
 CREATE TABLE "Role" (
     "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "name" TEXT NOT NULL,
+    "name" TEXT NOT NULL
 );
 
 CREATE TABLE "Speciality" (
     "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "name" TEXT NOT NULL,
+    "name" TEXT NOT NULL
 );
 
 CREATE TABLE "Team" (
@@ -40,11 +40,11 @@ CREATE TABLE "Team" (
     "color" VARCHAR(7) NOT NULL,
     "profilePictureUrl" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL
 );
 
 CREATE TABLE "Conversation" (
-    "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY
 );
 
 CREATE TABLE "Patient" (
@@ -58,31 +58,31 @@ CREATE TABLE "Patient" (
     "email" VARCHAR(50) NOT NULL,
     "address" VARCHAR(140) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL
 );
 
 CREATE TABLE "ZipCode" (
     "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "code" VARCHAR(5) NOT NULL,
-    "cityId" INTEGER NOT NULL,
+    "cityId" INTEGER NOT NULL
 );
 
 CREATE TABLE "City" (
     "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "name" VARCHAR(60) NOT NULL,
+    "name" VARCHAR(60) NOT NULL
 );
 
 CREATE TABLE "Channel" (
     "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "patientId" INTEGER NOT NULL,
-    "channelTypeId" INTEGER NOT NULL,
+    "channelTypeId" INTEGER NOT NULL
 );
 
 CREATE TABLE "ChannelType" (
     "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "name" VARCHAR(30) NOT NULL,
     "color" VARCHAR(7) NOT NULL,
-    "order" DOUBLE PRECISION NOT NULL,
+    "order" DOUBLE PRECISION NOT NULL
 );
 
 CREATE TABLE "_UserHasRole" (
