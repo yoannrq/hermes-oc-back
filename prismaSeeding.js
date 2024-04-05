@@ -79,18 +79,6 @@ async function main() {
             }
           })
         },
-
-
-        // conversations: {
-        //   connectOrCreate: user.conversations.map((conversationId) => {
-        //     return {
-        //       where: { id: conversationId },
-        //       create: { id: conversationId }
-        //     }
-        //   })
-        // },
-
-
       }
     })
   }
@@ -131,6 +119,7 @@ async function main() {
       }
     })
   }
+
   for (const patient of seed.patients){
     const patientRecord = await prisma.patient.upsert({
       where: {
@@ -168,24 +157,21 @@ async function main() {
             }
           })
         }
-
-        // channels: {
-        //   connectOrCreate: patient.channels.map((channel) => {
-        //     return {
-        //       where: {
-        //         AND: [
-        //           { patientId: channel.patientIdId },
-        //           { channelTypeId: channel.channelTypeId }
-        //       ]},
-        //       create: { patientId: channel.patientId, channelTypeId: channel.channelTypeId }
-        //     }
-        //   })
-        // },
-
       }
     })
   }
 
+  for (const userEmails of seed.conversations) {
+    const conversationRecord = await prisma.conversation.create({
+        data: {
+          users: {
+              connect: userEmails.map(email => ({ email: email }))
+          }
+        }
+    });
+  }
+
+  //TODO : A coder
   // for (const setting of seed.settings){
   //   await prisma.settings.upsert({
   //     where: {
@@ -198,6 +184,56 @@ async function main() {
 
   //   })
   // }
+
+  for (const channel of seed.channels){
+    let patient = await prisma.patient.findUnique({
+      where: { email: channel.patientEmail }
+    })
+
+    let channelType = await prisma.channelType.findUnique({
+      where: { name: channel.channelTypeName }
+    })
+
+    const records = await prisma.channel.findMany({
+      where: {
+        patientId: patient.id,
+        channelTypeId: channelType.id
+      }
+    })
+
+    if (records.length === 0){
+      await prisma.channel.create({
+        data: {
+          patientId: patient.id,
+          channelTypeId: channelType.id
+        }
+      })
+    }
+  }
+  //FIXME: Cette méthode ne fonctionne pas
+  /* for (const channel of seed.channels){
+    await prisma.channel.upsert({
+      where: {
+        AND: [
+          { channelTypeName: channel.channelTypeName },
+          { patientEmail: channel.patientEmail },
+        ]
+      },
+      update: {},
+      create: {
+        patientId: {
+          connect: {
+            email: channel.patientEmail
+          }
+        },
+        channelTypeId: {
+          connect: {
+            name: channel.channelTypeName
+          }
+        }
+      }
+    })
+  } */
 
 }
 

@@ -24,8 +24,15 @@ export default {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Vérification si l'utilisateur existe déjà en BDD par son mail
-      const user = await prisma.user.findUnique({ where: { email } });
+      // Vérification si le mail ou le code RPPS existe déjà en BDD
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email },
+            { rppsCode },
+          ],
+        },
+      });
 
       if (user) {
         return next({
