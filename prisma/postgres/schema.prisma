@@ -19,7 +19,7 @@ model User {
   firstname         String   @db.VarChar(30)
   lastname          String   @db.VarChar(30)
   password          String
-  rppsCode          String?  @unique @db.VarChar(11)
+  rppsCode          String   @unique @db.VarChar(11)
   profilePictureUrl String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -41,11 +41,13 @@ model Setting {
 
   user       User       @relation(fields: [userId], references: [id])
   settingKey SettingKey @relation(fields: [settingKeyId], references: [id])
+
+  @@unique([userId, settingKeyId])
 }
 
 model SettingKey {
   id           Int    @id @default(autoincrement())
-  name         String
+  name         String @unique
   defaultValue String
 
   settings Setting[]
@@ -53,14 +55,14 @@ model SettingKey {
 
 model Role {
   id   Int    @id @default(autoincrement())
-  name String
+  name String @unique
 
   users User[] @relation("UserHasRole")
 }
 
 model Speciality {
   id   Int    @id @default(autoincrement())
-  name String
+  name String @unique
 
   users User[] @relation("UserHasSpeciality")
 }
@@ -68,7 +70,7 @@ model Speciality {
 model Team {
   id                Int      @id @default(autoincrement())
   ownerId           Int
-  name              String   @db.VarChar(50)
+  name              String   @unique @db.VarChar(50)
   color             String   @db.VarChar(7)
   profilePictureUrl String?
   createdAt         DateTime @default(now())
@@ -112,7 +114,7 @@ model ZipCode {
 
 model City {
   id   Int    @id @default(autoincrement())
-  name String @db.VarChar(60)
+  name String @unique @db.VarChar(60)
 
   zipCodes ZipCode[]
 }
@@ -124,11 +126,13 @@ model Channel {
 
   patient     Patient     @relation(fields: [patientId], references: [id])
   channelType ChannelType @relation(fields: [channelTypeId], references: [id])
+
+  @@unique([patientId, channelTypeId])
 }
 
 model ChannelType {
   id    Int    @id @default(autoincrement())
-  name  String @db.VarChar(30)
+  name  String @unique @db.VarChar(30)
   color String @db.VarChar(7)
   order Float
 
