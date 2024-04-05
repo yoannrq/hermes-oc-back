@@ -39,6 +39,7 @@ export default {
           status: 409,
           message: 'User already exists.',
           email,
+          rppsCode,
         });
       }
 
