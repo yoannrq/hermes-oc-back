@@ -1,0 +1,223 @@
+{
+  "users": [
+    {
+      "email": "alice@smith.com",
+      "firstname": "Alice",
+      "lastname": "Smith",
+      "password": "Password123!",
+      "profilePictureUrl": "https://example.com/image1.jpg",
+      "roles": ["Administrator", "Manager"],
+      "specialities": ["Cardiology"],
+      "conversations": [1, 3, 5],
+      "teams": [
+        { "ownerId": 1, "name": "Manager Team", "color": "#f6f8fa" },
+        { "ownerId": 1, "name": "Pole 1", "color": "#6fa7dd" }
+      ],
+      "ownedTeams": [
+        { "ownerId": 1, "name": "Manager Team", "color": "#f6f8fa" },
+        { "ownerId": 1, "name": "Pole 1", "color": "#6fa7dd" }
+      ],
+      "settings": [
+        { "userId": 1, "settingKeyId": 1, "value": "dark" },
+        { "userId": 1, "settingKeyId": 2, "value": "en" }
+      ]
+    },
+    {
+      "email": "bob@brown.com",
+      "firstname": "Bob",
+      "lastname": "Brown",
+      "password": "Password123!",
+      "profilePictureUrl": "https://example.com/image2.jpg",
+      "roles": ["Viewer", "User"],
+      "specialities": ["Neurology"],
+      "conversations": [1, 2],
+      "teams": [
+        { "ownerId": 2, "name": "Viewer Team", "color": "#16c60c" },
+        { "ownerId": 1, "name": "Pole 1", "color": "#6fa7dd" }
+      ]
+    },
+    {
+      "email": "charlie@davis.com",
+      "firstname": "Charlie",
+      "lastname": "Davis",
+      "password": "Password123!",
+      "profilePictureUrl": "https://example.com/image3.jpg",
+      "roles": ["Manager", "Editor", "User"],
+      "specialities": ["Pediatrics"],
+      "conversations": [2],
+      "teams": [
+        { "ownerId": 1, "name": "Manager Team", "color": "#f6f8fa" },
+        { "ownerId": 3, "name": "Afterwork", "color": "#f03a17" }
+      ]
+    },
+    {
+      "email": "david@evans.com",
+      "firstname": "David",
+      "lastname": "Evans",
+      "password": "Password123!",
+      "profilePictureUrl": "https://example.com/image4.jpg",
+      "roles": ["Guest"],
+      "specialities": ["Orthopedics"],
+      "conversations": [4, 5],
+      "teams": [
+        { "ownerId": 1, "name": "Pole 1", "color": "#6fa7dd" },
+        { "ownerId": 3, "name": "Afterwork", "color": "#f03a17" }
+      ]
+    },
+    {
+      "email": "eva@fox.com",
+      "firstname": "Eva",
+      "lastname": "Fox",
+      "password": "Password123!",
+      "profilePictureUrl": "https://example.com/image5.jpg",
+      "roles": ["Administrator", "Editor", "User"],
+      "specialities": ["Oncology"],
+      "conversations": [4],
+      "teams": [
+        { "ownerId": 1, "name": "Pole 1", "color": "#6fa7dd" },
+        { "ownerId": 3, "name": "Afterwork", "color": "#f03a17" },
+        { "ownerId": 1, "name": "Manager Team", "color": "#f6f8fa" }
+      ]
+    }
+  ],
+  "patients": [
+    {
+      "firstname": "Capitaine",
+      "lastname": "Haddock",
+      "birthdate": "1980-01-01",
+      "socialSecurityNumber": "123456789012345",
+      "phoneNumber": "0123456789",
+      "email": "capitaine@haddock.fr",
+      "address": "123 rue du port",
+      "zipCode": {
+        "code": "13000",
+        "cityId": 3
+      },
+      "channels": [
+        {
+          "patientId": 1,
+          "channelTypeId": 1
+        },
+        {
+          "patientId": 1,
+          "channelTypeId": 2
+        },
+        {
+          "patientId": 1,
+          "channelTypeId": 3
+        },
+        {
+          "patientId": 1,
+          "channelTypeId": 4
+        }
+      ],
+      "users": [
+        "alice@smith.com",
+        "bob@brown.com",
+        "charlie@davis.com",
+        "david@evans.com",
+        "eva@fox.com"
+      ]
+    },
+    {
+      "firstname": "Tintin",
+      "lastname": "Reporter",
+      "birthdate": "1985-01-01",
+      "socialSecurityNumber": "987654321012345",
+      "phoneNumber": "9876543210",
+      "email": "tintin@reporter.fr",
+      "address": "456 boulevard de Moulinsart",
+      "zipCode": {
+        "code": "69000",
+        "cityName": "Lyon"
+      },
+      "channels": [
+        {
+          "patientId": 2,
+          "channelTypeId": 1
+        },
+        {
+          "patientId": 2,
+          "channelTypeId": 4
+        }
+      ],
+      "users": ["alice@smith.com", "bob@brown.com", "eva@fox.com"]
+    },
+    {
+      "firstname": "Emmanuel",
+      "lastname": "Macron",
+      "birthdate": "1977-12-21",
+      "socialSecurityNumber": "135790246812345",
+      "phoneNumber": "1357902468",
+      "email": "emmanuel@macron.fr",
+      "address": "55 rue du faubourg Saint-Honoré",
+      "zipCode": {
+        "code": "75000",
+        "cityId": 1
+      },
+      "channels": [
+        {
+          "patientId": 3,
+          "channelTypeId": 1
+        },
+        {
+          "patientId": 3,
+          "channelTypeId": 2
+        },
+        {
+          "patientId": 3,
+          "channelTypeId": 3
+        }
+      ],
+      "users": [
+        "alice@smith.com",
+        "charlie@davis.com",
+        "david@evans.com",
+        "eva@fox.com"
+      ]
+    }
+  ],
+  "channelsTypes": [
+    {
+      "name": "Pharmacy",
+      "color": "#a742f5",
+      "order": 1
+    },
+    {
+      "name": "General",
+      "color": "#f54242",
+      "order": 2
+    },
+    {
+      "name": "Radiology",
+      "color": "#42f5a7",
+      "order": 3
+    },
+    {
+      "name": "Connection with family",
+      "color": "#f5a742",
+      "order": 4
+    }
+  ],
+  "cities": [
+    {
+      "name": "Paris"
+    },
+    {
+      "name": "Lyon"
+    },
+    {
+      "name": "Marseille"
+    }
+  ],
+  "settingsKeys": [
+    {
+      "name": "theme",
+      "defaultValue": "light"
+    },
+    {
+      "name": "language",
+      "defaultValue": "fr"
+    }
+  ]
+}
