@@ -13,31 +13,33 @@ async function hashPassword(password){
 async function main() {
 
   for (const settingKey of seed.settingsKeys){
-    const settingKeyRecord = await prisma.settingKey.create({
-      data: {
+    const settingKeyRecord = await prisma.settingKey.upsert({
+      where: { name: settingKey.name },
+      create: {
         name: settingKey.name,
         defaultValue: settingKey.defaultValue
-      }
-    })
-  }
-
-  for (const city of seed.cities){
-    const cityRecord = await prisma.city.create({
-      data: {
-        name: city.name
-      }
+      },
+      update: {
+        defaultValue: settingKey.defaultValue
+      },
     })
   }
 
   for (const channelType of seed.channelsTypes){
-    const channelTypeRecord = await prisma.channelType.create({
-      data: {
+    const channelTypeRecord = await prisma.channelType.upsert({
+      where: { name: channelType.name },
+      create: {
         name: channelType.name,
         color: channelType.color,
         order: channelType.order
-    }
+      },
+      update: {
+        color: channelType.color,
+        order: channelType.order
+      }
     })
   }
+
   for (const user of seed.users){
 
     // Methode 2: Utiliser la syntaxe prisma pour faire ça pour nous !
@@ -51,54 +53,78 @@ async function main() {
     // https://www.prisma.io/docs/orm/prisma-client/queries/relation-queries#nested-writes
     const hachedPassword = await hashPassword(user.password);
 
-    const userRecord = await prisma.user.create({
-      data: {
+    const userRecord = await prisma.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: {
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
         password: hachedPassword,
+        rppsCode: user.rppsCode,
         profilePictureUrl: user.profilePictureUrl,
         roles: {
-          connectOrCreate: user.roles.map((role) => {
+          connectOrCreate: user.roles.map((roleName) => {
             return {
-              where: { name: role.name },
-              create: { name: role.name }
+              where: { name: roleName },
+              create: { name: roleName }
             }
           })
         },
-        //TODO : Ajouter l'id dans chaque passage Where
         specialities: {
-          connectOrCreate: user.specialities.map((speciality) => {
+          connectOrCreate: user.specialities.map((specialityName) => {
             return {
-              where: { name: speciality },
-              create: { name: speciality }
+              where: { name: specialityName },
+              create: { name: specialityName }
             }
           })
         },
 
-        conversations: {
-          connectOrCreate: user.conversations.map((conversationId) => {
+
+        // conversations: {
+        //   connectOrCreate: user.conversations.map((conversationId) => {
+        //     return {
+        //       where: { id: conversationId },
+        //       create: { id: conversationId }
+        //     }
+        //   })
+        // },
+
+
+      }
+    })
+  }
+
+  for (const team of seed.teams){
+    await prisma.team.upsert({
+      where: { name: team.name },
+      update: {
+        color: team.color,
+        owner: {
+          connect: {
+            email: team.ownerEmail,
+          }
+        },
+        users: {
+          connect: team.usersEmail.map((userEmail) => {
             return {
-              where: { id: conversationId },
-              create: { id: conversationId }
+              email: userEmail,
             }
           })
+        }
+      },
+      create: { 
+        name: team.name,
+        color: team.color,
+        owner: {
+          connect: {
+            email: team.ownerEmail,
+          }
         },
-
-        teams: {
-          connectOrCreate: user.teams.map((team) => {
+        users: {
+          connect: team.usersEmail.map((userEmail) => {
             return {
-              where: { name: team.name },
-              create: { ownerId: team.ownerId, name: team.name, color: team.color }
-            }
-          })
-        },
-
-        settings: {
-          connectOrCreate: user.settings.map((setting) => {
-            return {
-              where: { settingKeyId: setting.settingKeyId },
-              create: { userId: setting.userId, settingKeyId: setting.settingKeyId, value: setting.value }
+              email: userEmail,
             }
           })
         },
@@ -108,13 +134,13 @@ async function main() {
   for (const patient of seed.patients){
     const patientRecord = await prisma.patient.upsert({
       where: {
-        email: user.email,
+        email: patient.email,
       },
       update: {},
       create: {
         firstname: patient.firstname,
         lastname: patient.lastname,
-        birthdate: patient.birthdate,
+        birthdate: new Date(patient.birthdate),
         socialSecurityNumber: patient.socialSecurityNumber,
         phoneNumber: patient.phoneNumber,
         email: patient.email,
@@ -126,7 +152,7 @@ async function main() {
             create: {
                 code: patient.zipCode.code,
                 city: {
-                  connnectOrCreate: {
+                  connectOrCreate: {
                     where: { name: patient.zipCode.cityName },
                     create: { name: patient.zipCode.cityName }
                   }
@@ -135,71 +161,44 @@ async function main() {
           }
         },
 
-        channels: {
-          connectOrCreate: patient.channels.map((channel) => {
-            return {
-              where: {
-                AND: [
-                  { patientId: channel.patientIdId },
-                  { channelTypeId: channel.channelTypeId }
-              ]},
-              create: { patientId: channel.patientId, channelTypeId: channel.channelTypeId }
-            }
-          })
-        },
-
         users: {
           connect: patient.users.map((userEmail) => {
             return {
-              where: { email: userEmail }
+              email: userEmail, 
             }
           })
         }
+
+        // channels: {
+        //   connectOrCreate: patient.channels.map((channel) => {
+        //     return {
+        //       where: {
+        //         AND: [
+        //           { patientId: channel.patientIdId },
+        //           { channelTypeId: channel.channelTypeId }
+        //       ]},
+        //       create: { patientId: channel.patientId, channelTypeId: channel.channelTypeId }
+        //     }
+        //   })
+        // },
+
       }
     })
   }
 
-  // for (const patient of seed.patients){
-  //   const patientRecord = await prisma.patient.create({
-  //     data: {
-  //       firstname: patient.firstname,
-  //       lastname: patient.lastname,
-  //       birthdate: patient.birthdate,
-  //       socialSecurityNumber: patient.socialSecurityNumber,
-  //       phoneNumber: patient.phoneNumber,
-  //       email: patient.email,
-  //       address: patient.address,
+  // for (const setting of seed.settings){
+  //   await prisma.settings.upsert({
+  //     where: {
+  //       AND: [
+  //         {user: { email: setting.userEmail}},
+  //         {settingKey: { name: setting.settingKeyName}},
+  //       ]
+  //      },
 
-  //       zipCode: {
-  //         connectOrCreate: {
-  //           where: { code: patient.zipCode.code },
-  //           create: { code: patient.zipCode.code, cityId: patient.zipCode.cityId }
-  //         }
-  //       },
 
-  //       channels: {
-  //         connectOrCreate: patient.channels.map((channel) => {
-  //           return {
-  //             where: {
-  //               AND: [
-  //                 { patientId: channel.patientIdId },
-  //                 { channelTypeId: channel.channelTypeId }
-  //             ]},
-  //             create: { patientId: channel.patientId, channelTypeId: channel.channelTypeId }
-  //           }
-  //         })
-  //       },
-
-  //       users: {
-  //         connect: patient.users.map((userId) => {
-  //           return {
-  //             where: { id: userId }
-  //           }
-  //         })
-  //       }
-  //     }
   //   })
   // }
+
 }
 
 main()

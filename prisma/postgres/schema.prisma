@@ -108,7 +108,7 @@ model ZipCode {
   code   String @unique @db.VarChar(5)
   cityId Int
 
-  citiy   City      @relation(fields: [cityId], references: [id])
+  city   City      @relation(fields: [cityId], references: [id])
   Patient Patient[]
 }
 
