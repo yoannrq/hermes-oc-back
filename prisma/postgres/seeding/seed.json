@@ -181,13 +181,48 @@
   "settings": [
     {
       "userEmail": "alice@smith.com",
-      "settingKeyName": "FontSize",
+      "settingKeyName": "fontSize",
       "value": "10"
     },
     {
       "userEmail": "alice@smith.com",
-      "settingKeyName": "FontSize",
-      "value": ""
+      "settingKeyName": "theme",
+      "value": "dark"
+    },
+    {
+      "userEmail": "alice@smith.com",
+      "settingKeyName": "language",
+      "value": "en"
+    },
+    {
+      "userEmail": "david@evans.com",
+      "settingKeyName": "fontSize",
+      "value": "12"
+    },
+    {
+      "userEmail": "eva@fox.com",
+      "settingKeyName": "theme",
+      "value": "dark"
+    },
+    {
+      "userEmail": "eva@fox.com",
+      "settingKeyName": "language",
+      "value": "it"
+    },
+    {
+      "userEmail": "bob@brown.com",
+      "settingKeyName": "fontSize",
+      "value": "9"
+    },
+    {
+      "userEmail": "bob@brown.com",
+      "settingKeyName": "theme",
+      "value": "dark"
+    },
+    {
+      "userEmail": "bob@brown.com",
+      "settingKeyName": "language",
+      "value": "en"
     }
   ],
   "channels": [
