@@ -171,33 +171,19 @@ async function main() {
     });
   }
 
-  for (const setting of seed.settings){
-    let user = await prisma.user.findUnique({
-      where: { email: setting.userEmail }
-    })
+  //TODO : A coder
+  // for (const setting of seed.settings){
+  //   await prisma.settings.upsert({
+  //     where: {
+  //       AND: [
+  //         {user: { email: setting.userEmail}},
+  //         {settingKey: { name: setting.settingKeyName}},
+  //       ]
+  //      },
 
-    let settingKey = await prisma.settingKey.findUnique({
-      where: { name: setting.settingKeyName }
-    })
 
-    const association = await prisma.setting.findFirst({
-      where: {
-        userId: user.id,
-        settingKeyId: settingKey.id
-      }
-    })
-
-    if (!association){
-      await prisma.setting.create({
-        data: {
-          userId: user.id,
-          settingKeyId: settingKey.id,
-          value: setting.value
-        }
-      })
-    }
-    
-  }
+  //   })
+  // }
 
   for (const channel of seed.channels){
     let patient = await prisma.patient.findUnique({
@@ -208,14 +194,14 @@ async function main() {
       where: { name: channel.channelTypeName }
     })
 
-    const association = await prisma.channel.findFirst({
+    const records = await prisma.channel.findMany({
       where: {
         patientId: patient.id,
         channelTypeId: channelType.id
       }
     })
 
-    if (!association){
+    if (records.length === 0){
       await prisma.channel.create({
         data: {
           patientId: patient.id,
