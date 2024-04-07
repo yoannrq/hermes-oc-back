@@ -5,6 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js",
     "postgres:migrate:deploy": "npx prisma migrate deploy --schema prisma/postgres/schema.prisma --preview-feature",
     "postgres:migrate:dev": "prisma migrate dev --schema prisma/postgres/schema.prisma --name",
     "postgres:migrate:dev:create": "prisma migrate dev --schema prisma/postgres/schema.prisma --create-only",
@@ -28,6 +30,9 @@
     "morgan": "^1.10.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
+    "nodemon": "^3.1.0",
+    "socket.io": "^4.7.5",
+    "websocket.io": "^0.2.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
