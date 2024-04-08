@@ -33,7 +33,7 @@ async function loginRequired(req, res, next) {
       });
     }
 
-    // Ajout des données du token dans l'objet req
+    // Ajout des données du token dans l'objet res.locals
     delete user.password;
     res.locals.user = user;
 

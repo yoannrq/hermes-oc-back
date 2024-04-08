@@ -24,4 +24,31 @@ const router = express.Router();
  */
 router.get('/', meController.getMe);
 
+/**
+ * @swagger
+ * /api/me:
+ *   patch:
+ *     summary: Update user informations
+ *     tags:
+ *       - me
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/user'
+ *     responses:
+ *       200:
+ *         description: Updated user informations.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/user'
+ *       401:
+ *         description: Unauthorized.
+ */
+router.patch('/', meController.updateMe);
+
 export default router;

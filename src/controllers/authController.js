@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../models/client.js';
 import userSchema from '../utils/validation/userSchema.js';
+import formatingName from '../utils/formatingName.js';
 
 export default {
   signup: async (req, res, next) => {
@@ -43,9 +44,8 @@ export default {
         });
       }
 
-      // Formater les noms "bob" ou "BOB" => "Bob"
-      const formatedFirstname = firstname[0].toUpperCase() + firstname.slice(1).toLowerCase();
-      const formatedLastname = lastname[0].toUpperCase() + lastname.slice(1).toLowerCase();
+      const formatedFirstname = formatingName(firstname);
+      const formatedLastname = formatingName(lastname);
 
       // Création de l'utilisateur en BDD
       const newUser = await prisma.user.create({
@@ -109,6 +109,17 @@ export default {
       res.setHeader('Authorization', `Bearer ${token}`);
 
       return res.status(200).json({ message: 'Login successful.' });
+    } catch (error) {
+      return next(error);
+    }
+  },
+
+  logout: async (req, res, next) => {
+    try {
+      // Effacer le token JWT dans les headers
+      res.setHeader('Authorization', '');
+
+      return res.status(200).json({ message: 'Logout successful.' });
     } catch (error) {
       return next(error);
     }
