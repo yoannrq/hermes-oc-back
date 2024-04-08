@@ -224,31 +224,6 @@ async function main() {
       })
     }
   }
-  //FIXME: Cette méthode ne fonctionne pas
-  /* for (const channel of seed.channels){
-    await prisma.channel.upsert({
-      where: {
-        AND: [
-          { channelTypeName: channel.channelTypeName },
-          { patientEmail: channel.patientEmail },
-        ]
-      },
-      update: {},
-      create: {
-        patientId: {
-          connect: {
-            email: channel.patientEmail
-          }
-        },
-        channelTypeId: {
-          connect: {
-            name: channel.channelTypeName
-          }
-        }
-      }
-    })
-  } */
-
 }
 
 main()

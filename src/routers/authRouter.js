@@ -60,20 +60,18 @@ router.post('/login', authController.login);
 /**
  * @swagger
  * /api/auth/logout:
- *   get:
+ *   post:
  *     summary: Log out current user
  *     tags:
  *       - auth
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Logout successful.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/user'
  *       401:
  *         description: Unauthorized, wrong credentials.
  */
-router.get('/logout', authController.logout);
+router.post('/logout', authController.logout);
 
 export default router;
