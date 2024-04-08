@@ -100,7 +100,8 @@ const userSchema = z.object({
         value: "The field 'rppsCode' must contain digits only",
         code: 'rppsCodeDigits',
       },
-    }),
+    })
+    .optional(),
 
   profilePictureUrl: z
     .string().optional(),

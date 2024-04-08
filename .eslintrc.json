@@ -12,6 +12,7 @@
   "rules": {
     "linebreak-style": ["error", "windows"],
     "no-underscore-dangle": ["error", { "allow": ["__dirname"] }],
-    "import/extensions": ["error", "ignorePackages", { "js": "always" }]
+    "import/extensions": ["error", "ignorePackages", { "js": "always" }],
+    "max-len": "off"
   }
 }

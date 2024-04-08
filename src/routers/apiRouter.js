@@ -7,6 +7,7 @@ import authRouter from './authRouter.js';
 import meRouter from './meRouter.js';
 import loginRequired from '../middlewares/loginRequired.js';
 import swaggerSpec from '../api-docs/swagger.js';
+import conversationRouter from './conversationRouter.js';
 
 const router = express.Router();
 
@@ -20,5 +21,8 @@ router.use('/auth', authRouter);
 
 // Routes me
 router.use('/me', loginRequired, meRouter);
+
+// Routes conversations
+router.use('/me/conversations', loginRequired, conversationRouter);
 
 export default router;
