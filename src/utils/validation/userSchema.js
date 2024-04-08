@@ -87,10 +87,6 @@ const userSchema = z.object({
 
   rppsCode: z
     .string({
-      required_error: {
-        value: "The field 'rppsCode' is required.",
-        code: 'rppsCodeRequired',
-      },
       invalid_type_error: "The field 'rppsCode' must be a string.",
     })
     .length(11, {
