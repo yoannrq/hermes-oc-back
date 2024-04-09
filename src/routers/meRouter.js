@@ -4,11 +4,13 @@ import meController from '../controllers/meController.js';
 import privateRouter from './privateRouter.js';
 import messageRouter from './messageRouter.js';
 import patientRouter from './patientRouter.js';
+import teamsRouter from './teamsRouter.js';
 
 const router = express.Router();
 
 // Routes privates
 router.use('/privates', privateRouter);
+router.use('/teams', teamsRouter);
 
 // Routes messages
 router.use('/messages', messageRouter);
