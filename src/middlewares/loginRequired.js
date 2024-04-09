@@ -26,7 +26,6 @@ async function loginRequired(req, res, next) {
         roles: true,
       },
     });
-    console.log(user);
 
     if (!user) {
       return next({

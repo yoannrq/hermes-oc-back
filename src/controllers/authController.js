@@ -68,38 +68,21 @@ export default {
 
   login: async (req, res, next) => {
     try {
-      // Validation des données avec zod
-      const { success, data, error } = userSchema.partial().safeParse(req.body);
-
-      if (!success) {
-        // erreur de validation de schéma zod !
-        return next({
-          status: 400,
-          message: 'Schema validation error.',
-          errors: error.errors,
-        });
-      }
+      const { email, password } = req.body;
 
       const user = await postgresClient.user.findUnique({
-        where: { email: data.email },
+        where: { email },
         include: {
           roles: true,
         },
       });
 
-      if (!user) {
-        return next({
-          status: 404,
-          message: 'User not found.',
-        });
-      }
+      const passwordMatch = await bcrypt.compare(password, user.password);
 
-      const passwordMatch = await bcrypt.compare(data.password, user.password);
-
-      if (!passwordMatch) {
+      if (!passwordMatch || !user) {
         return next({
           status: 401,
-          message: 'Invalid password.',
+          message: 'Invalid email or password.',
         });
       }
 
