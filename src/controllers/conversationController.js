@@ -1,11 +1,11 @@
-import prisma from '../models/client.js';
+import postgresClient from '../models/postgresClient.js';
 
 export default {
   getConversations: async (req, res, next) => {
     const { user } = res.locals;
 
     try {
-      const userWithConversations = await prisma.user.findUnique({
+      const userWithConversations = await postgresClient.user.findUnique({
         where: { email: user.email },
         include: {
           conversations: {

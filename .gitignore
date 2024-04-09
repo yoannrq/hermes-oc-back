@@ -1,3 +1,5 @@
 node_modules
 .env
 .vscode
+.ec-private.pem
+.ec-public.pem

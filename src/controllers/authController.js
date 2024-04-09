@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import prisma from '../models/client.js';
+import fs from 'fs';
+import postgresClient from '../models/postgresClient.js';
 import userSchema from '../utils/validation/userSchema.js';
 import formatingName from '../utils/formatingName.js';
 
@@ -26,7 +27,7 @@ export default {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Vérification si le mail ou le code RPPS existe déjà en BDD
-      const user = await prisma.user.findFirst({
+      const user = await postgresClient.user.findFirst({
         where: {
           OR: [
             { email },
@@ -48,7 +49,7 @@ export default {
       const formatedLastname = formatingName(lastname);
 
       // Création de l'utilisateur en BDD
-      const newUser = await prisma.user.create({
+      const newUser = await postgresClient.user.create({
         data: {
           email,
           firstname: formatedFirstname,
@@ -79,7 +80,7 @@ export default {
         });
       }
 
-      const user = await prisma.user.findUnique({
+      const user = await postgresClient.user.findUnique({
         where: { email: data.email },
         include: {
           roles: true,
@@ -103,7 +104,8 @@ export default {
       }
 
       // Générer un token JWT
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const privateKey = fs.readFileSync(process.env.PATH_TO_PRIVATE_KEY, 'utf8');
+      const token = jwt.sign({ userId: user.id }, privateKey, { expiresIn: '1h', algorithm: 'ES256' });
 
       // Ajouter le token dans les headers de la réponse
       res.setHeader('Authorization', `Bearer ${token}`);

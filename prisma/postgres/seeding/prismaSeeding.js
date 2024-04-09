@@ -1,9 +1,8 @@
 // Prisma Seed file
 import seed from "./seed.json" assert { type: 'json'};
-import { PrismaClient } from '@prisma/client';
+import postgresClient from '../../../src/models/postgresClient.js';
 import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
 
 async function hashPassword(password){
   const hachedPassword = await bcrypt.hash(password, 10);
@@ -13,7 +12,7 @@ async function hashPassword(password){
 async function main() {
 
   for (const settingKey of seed.settingsKeys){
-    const settingKeyRecord = await prisma.settingKey.upsert({
+    const settingKeyRecord = await postgresClient.settingKey.upsert({
       where: { name: settingKey.name },
       create: {
         name: settingKey.name,
@@ -26,7 +25,7 @@ async function main() {
   }
 
   for (const channelType of seed.channelsTypes){
-    const channelTypeRecord = await prisma.channelType.upsert({
+    const channelTypeRecord = await postgresClient.channelType.upsert({
       where: { name: channelType.name },
       create: {
         name: channelType.name,
@@ -53,7 +52,7 @@ async function main() {
     // https://www.prisma.io/docs/orm/prisma-client/queries/relation-queries#nested-writes
     const hachedPassword = await hashPassword(user.password);
 
-    const userRecord = await prisma.user.upsert({
+    const userRecord = await postgresClient.user.upsert({
       where: { email: user.email },
       update: {},
       create: {
@@ -84,7 +83,7 @@ async function main() {
   }
 
   for (const team of seed.teams){
-    await prisma.team.upsert({
+    await postgresClient.team.upsert({
       where: { name: team.name },
       update: {
         color: team.color,
@@ -121,7 +120,7 @@ async function main() {
   }
 
   for (const patient of seed.patients){
-    const patientRecord = await prisma.patient.upsert({
+    const patientRecord = await postgresClient.patient.upsert({
       where: {
         email: patient.email,
       },
@@ -162,7 +161,7 @@ async function main() {
   }
 
   for (const userEmails of seed.conversations) {
-    const conversationRecord = await prisma.conversation.create({
+    const conversationRecord = await postgresClient.conversation.create({
         data: {
           users: {
               connect: userEmails.map(email => ({ email: email }))
@@ -172,15 +171,15 @@ async function main() {
   }
 
   for (const setting of seed.settings){
-    let user = await prisma.user.findUnique({
+    let user = await postgresClient.user.findUnique({
       where: { email: setting.userEmail }
     })
 
-    let settingKey = await prisma.settingKey.findUnique({
+    let settingKey = await postgresClient.settingKey.findUnique({
       where: { name: setting.settingKeyName }
     })
 
-    const association = await prisma.setting.findFirst({
+    const association = await postgresClient.setting.findFirst({
       where: {
         userId: user.id,
         settingKeyId: settingKey.id
@@ -188,7 +187,7 @@ async function main() {
     })
 
     if (!association){
-      await prisma.setting.create({
+      await postgresClient.setting.create({
         data: {
           userId: user.id,
           settingKeyId: settingKey.id,
@@ -200,15 +199,15 @@ async function main() {
   }
 
   for (const channel of seed.channels){
-    let patient = await prisma.patient.findUnique({
+    let patient = await postgresClient.patient.findUnique({
       where: { email: channel.patientEmail }
     })
 
-    let channelType = await prisma.channelType.findUnique({
+    let channelType = await postgresClient.channelType.findUnique({
       where: { name: channel.channelTypeName }
     })
 
-    const association = await prisma.channel.findFirst({
+    const association = await postgresClient.channel.findFirst({
       where: {
         patientId: patient.id,
         channelTypeId: channelType.id
@@ -216,7 +215,7 @@ async function main() {
     })
 
     if (!association){
-      await prisma.channel.create({
+      await postgresClient.channel.create({
         data: {
           patientId: patient.id,
           channelTypeId: channelType.id
@@ -231,5 +230,5 @@ main()
     throw e;
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await postgresClient.$disconnect();
   });

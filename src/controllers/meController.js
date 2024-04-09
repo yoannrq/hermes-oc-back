@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import prisma from '../models/client.js';
+import postgresClient from '../models/postgresClient.js';
 import userSchema from '../utils/validation/userSchema.js';
 import formatingName from '../utils/formatingName.js';
 
@@ -42,7 +42,7 @@ export default {
     const { user } = res.locals;
 
     try {
-      const updatedUser = await prisma.user.update({
+      const updatedUser = await postgresClient.user.update({
         where: { id: user.id },
         data,
       });

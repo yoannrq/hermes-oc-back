@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
-import prisma from '../models/client.js';
+import fs from 'fs';
+import postgresClient from '../models/postgresClient.js';
 
 async function loginRequired(req, res, next) {
   // Récupération du token dans le header, split pour retirer le 'Bearer
@@ -14,11 +15,12 @@ async function loginRequired(req, res, next) {
 
   // Vérification du token
   try {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const publicKey = fs.readFileSync(process.env.PATH_TO_PUBLIC_KEY, 'utf8');
+    const decodedToken = jwt.verify(token, publicKey, { algorithm: 'ES256' });
     const { userId } = decodedToken;
 
     // Vérification de l'utilisateur en BDD
-    const user = await prisma.user.findUnique({
+    const user = await postgresClient.user.findUnique({
       where: { id: userId },
       include: {
         roles: true,

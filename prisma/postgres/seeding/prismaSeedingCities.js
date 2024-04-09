@@ -1,12 +1,10 @@
 import seedCities from "./seedCities.json" assert { type: 'json' };
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import postgresClient from '../../../src/models/postgresClient.js';
 
 async function main() {
 
 for (const city of seedCities){
-    const cityRecord = await prisma.zipCode.upsert({
+    const cityRecord = await postgresClient.zipCode.upsert({
       where: { code: city.code.toString() },
       create: {
         code: city.code.toString(),
@@ -28,5 +26,5 @@ main()
     throw e;
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await postgresClient.$disconnect();
   });
