@@ -8,6 +8,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/mongodb/client"
 }
 
 model Message {
@@ -24,21 +25,6 @@ model Message {
   responses     Message[]    @relation("repliedMessage")
   attachments   attachment[]
 }
-
-// Soit A, B, C, D des messages tel que B, C, D sont des réponses de A.
-//
-//           A
-//         / | \
-//       B   C   D
-// 
-// A {id: 1, sourceMessageId: null}
-// B {id: 2, sourceMessageId: 5}
-// C {id: 3, sourceMessageId: 5}
-// D {id: 4, sourceMessageId: 5}
-// 
-// A.responses => [B, C, D]
-// B.responses => []
-// B.sourceMessage => A
 
 model LastMessageRead {
   id             String @id @default(auto()) @map("_id") @db.ObjectId
