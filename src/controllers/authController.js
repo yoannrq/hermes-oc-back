@@ -1,6 +1,9 @@
+// [ packages imports ]
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import fs from 'fs';
+import '../helpers/envLoader.js';
+
+// [ local imports ]
 import postgresClient from '../models/postgresClient.js';
 import userSchema from '../utils/validation/userSchema.js';
 import formatingName from '../utils/formatingName.js';
@@ -99,10 +102,7 @@ export default {
       }
 
       // Générer un token JWT
-      const privateKey = fs.readFileSync(
-        process.env.PATH_TO_PRIVATE_KEY,
-        'utf8',
-      );
+      const privateKey = process.env.JWT_ES256_PRIVATE_KEY;
       const token = jwt.sign({ userId: user.id }, privateKey, {
         expiresIn: '1h',
         algorithm: 'ES256',
