@@ -10,7 +10,7 @@ const router = express.Router();
  *   get:
  *     summary: Liste des équipes pour un utilisateur.
  *     tags:
- *       - conversation
+ *       - team
  *     security:
  *       - bearerAuth: []
  *     responses:
