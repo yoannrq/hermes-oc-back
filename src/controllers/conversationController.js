@@ -87,11 +87,19 @@ export default {
           lastMessage[0].content = 'This message has been deleted';
         }
 
-        // Retourne la conversation enrichie avec le dernier message et le nombre de messages non lus
+        // Compte le nombre total de messages dans la conversation
+        const totalMessages = await mongoClient.message.count({
+          where: {
+            conversationId: conversation.conversationid,
+          },
+        });
+
+        // Retourne la conversation enrichie avec le dernier message, le nombre de messages non lus et le nombre total de messages
         return {
           ...conversation,
           lastMessage: { content: lastMessage[0].content, date: lastMessageDate }, // Récupère le content du message et la date
           unreadMessagesCount, // Ajoute le nombre de messages non lus à l'objet de la conversation
+          totalMessages, // Ajoute le nombre total de messages à l'objet de la conversation
         };
       }));
 
@@ -144,9 +152,17 @@ export default {
 
   getOneConversationWithMessages: async (req, res, next) => {
     const { user } = res.locals;
+    const conversationId = parseInt(req.params.conversationId, 10);
 
-    // req.validatedConversationIdParam est l'id de la conversation validé par le middleware validateParams
-    const conversationId = req.validatedConversationIdParam;
+    const page = parseInt(req.query.page, 10) || 1;
+    const pageSize = parseInt(req.query.pageSize, 10) || 10;
+
+    if (conversationId.isNaN) {
+      return next({
+        status: 400,
+        message: 'Invalidate parameter',
+      });
+    }
 
     try {
       const conversation = await postgresClient.conversation.findFirst({
@@ -183,6 +199,18 @@ export default {
         });
       }
 
+      const totalMessages = await mongoClient.message.count({
+        where: {
+          conversationId,
+        },
+      });
+
+      // Calcul du nombre total de pages pour la pagination
+      const totalPages = Math.ceil(totalMessages / pageSize);
+
+      // Calcul de l'offset pour servir les messages de la page demandée
+      const offset = (page - 1) * pageSize;
+
       const messages = await mongoClient.message.findMany({
         where: {
           conversationId,
@@ -190,6 +218,8 @@ export default {
         orderBy: {
           id: 'asc',
         },
+        skip: offset,
+        take: pageSize,
       });
 
       const formatedMessages = messages.map((message) => ({
@@ -203,6 +233,12 @@ export default {
         conversationId: conversation.id,
         receiver: conversation.users[0],
         messages: formatedMessages,
+        pagination: {
+          page,
+          pageSize,
+          totalMessages,
+          totalPages,
+        },
       });
     } catch (err) {
       return next({

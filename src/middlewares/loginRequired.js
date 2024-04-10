@@ -3,8 +3,8 @@ import postgresClient from '../models/postgresClient.js';
 import '../helpers/envLoader.js';
 
 async function loginRequired(req, res, next) {
-  // Récupération du token dans le header, split pour retirer le 'Bearer
-  const token = req.headers.authorization?.split(' ')[1];
+  // Récupération du token dans le cookie
+  const token = req.cookies.Authorization;
   // Si le token n'est pas présent
   if (!token) {
     return next({

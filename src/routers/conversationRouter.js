@@ -1,6 +1,5 @@
 import express from 'express';
 import conversationController from '../controllers/conversationController.js';
-import validateParams from '../middlewares/validateParams.js';
 
 import permissionRequired from '../middlewares/permissionRequired.js';
 import permissions from '../utils/permissions/permissions.js';
@@ -21,7 +20,7 @@ router.use(permissionRequired(permissions.conversation.all.canRead));
  *       - bearerAuth: []
  *     responses:
  *       '200':
- *         description: User conversations with the last message and unread message count
+ *         description: User conversations with the last message, unread message count, and total message count
  *         content:
  *           application/json:
  *             schema:
@@ -50,6 +49,7 @@ router.use(permissionRequired(permissions.conversation.all.canRead));
  *                         description: The last name of the user
  *                       profilePictureUrl:
  *                         type: string
+ *                         format: uri
  *                         description: The URL to the user's profile picture
  *                   lastMessage:
  *                     $ref: '#/components/schemas/message'
@@ -57,6 +57,9 @@ router.use(permissionRequired(permissions.conversation.all.canRead));
  *                   unreadMessagesCount:
  *                     type: integer
  *                     description: The count of unread messages in the conversation
+ *                   totalMessages:
+ *                     type: integer
+ *                     description: The total number of messages in the conversation
  *       '401':
  *         description: Unauthorized
  *       '404':
@@ -102,7 +105,7 @@ router.post('/', loginRequired, conversationController.newConversation);
  * @swagger
  * /api/me/conversations/{conversationId}/messages:
  *   get:
- *     summary: Retrieve a conversation with its messages
+ *     summary: Retrieve a conversation with its messages, supporting pagination
  *     tags:
  *       - conversation
  *     security:
@@ -114,6 +117,18 @@ router.post('/', loginRequired, conversationController.newConversation);
  *         schema:
  *           type: integer
  *         description: The ID of the conversation to retrieve
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number of the message list
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of messages per page
  *     responses:
  *       '200':
  *         description: Conversation with messages retrieved successfully
@@ -152,11 +167,22 @@ router.post('/', loginRequired, conversationController.newConversation);
  *                         format: date-time
  *                       authorId:
  *                         type: integer
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                     pageSize:
+ *                       type: integer
+ *                     totalMessages:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
  *       '401':
  *         description: Unauthorized
  *       '404':
  *         description: Conversation not found
  */
-router.get('/:conversationId/messages', loginRequired, validateParams, conversationController.getOneConversationWithMessages);
+router.get('/:conversationId/messages', loginRequired, conversationController.getOneConversationWithMessages);
 
 export default router;

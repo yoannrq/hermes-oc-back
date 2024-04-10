@@ -91,8 +91,14 @@ export default {
         algorithm: 'ES256',
       });
 
-      // Ajouter le token dans les headers de la réponse
-      res.setHeader('Authorization', `Bearer ${token}`);
+      // Ajouter le token dans un cookie
+      const cookieOptions = {
+        httpOnly: true, // Le cookie n'est pas accessible via JavaScript côté client
+        secure: process.env.NODE_ENV === 'production', // En production, envoyer le cookie uniquement sur HTTPS
+        maxAge: 3600000, // Durée de vie du cookie 1 heure
+        sameSite: 'strict', // Le cookie est envoyé uniquement pour les requêtes du même site
+      };
+      res.cookie('Authorization', token, cookieOptions);
 
       return res.status(200).json({ message: 'Login successful.' });
     } catch (error) {
@@ -102,8 +108,8 @@ export default {
 
   logout: async (req, res, next) => {
     try {
-      // Effacer le token JWT dans les headers
-      res.setHeader('Authorization', '');
+      // Effacer le token JWT dans les cookies
+      res.cookie('Authorization', '');
 
       return res.status(200).json({ message: 'Logout successful.' });
     } catch (error) {
