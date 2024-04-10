@@ -86,6 +86,7 @@ export default {
       });
     }
 
+    // TODO A modifier pour prendre en compte les channels et les teams
     try {
       const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
         where: {

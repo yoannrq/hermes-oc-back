@@ -1,5 +1,6 @@
 import postgresClient from '../models/postgresClient.js';
 import mongoClient from '../models/mongoClient.js';
+import getTimestampFromMongoObject from '../utils/getTimestampFromMongoObject.js';
 
 export default {
   getConversations: async (req, res, next) => {
@@ -79,10 +80,17 @@ export default {
           });
         }
 
+        // Récupère la date du dernier message pour l'afficher dans la conversation
+        const lastMessageDate = lastMessage[0] ? getTimestampFromMongoObject(lastMessage[0]) : null;
+
+        if (lastMessage[0].deleted) {
+          lastMessage[0].content = 'This message has been deleted';
+        }
+
         // Retourne la conversation enrichie avec le dernier message et le nombre de messages non lus
         return {
           ...conversation,
-          lastMessage: lastMessage[0], // Récupère le message de l'array renvoyé par findMany
+          lastMessage: { content: lastMessage[0].content, date: lastMessageDate }, // Récupère le content du message et la date
           unreadMessagesCount, // Ajoute le nombre de messages non lus à l'objet de la conversation
         };
       }));
@@ -125,6 +133,77 @@ export default {
       });
 
       return res.status(201).json(conversation);
+    } catch (err) {
+      return next({
+        status: 400,
+        message: 'Bad request',
+        error: err,
+      });
+    }
+  },
+
+  getOneConversationWithMessages: async (req, res, next) => {
+    const { user } = res.locals;
+
+    // req.validatedConversationIdParam est l'id de la conversation validé par le middleware validateParams
+    const conversationId = req.validatedConversationIdParam;
+
+    try {
+      const conversation = await postgresClient.conversation.findFirst({
+        where: {
+          id: conversationId,
+          users: {
+            some: {
+              email: user.email,
+            },
+          },
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              email: true,
+              firstname: true,
+              lastname: true,
+              profilePictureUrl: true,
+            },
+            where: {
+              email: {
+                not: user.email,
+              },
+            },
+          },
+        },
+      });
+
+      if (!conversation) {
+        return next({
+          status: 404,
+          message: 'Conversation not found',
+        });
+      }
+
+      const messages = await mongoClient.message.findMany({
+        where: {
+          conversationId,
+        },
+        orderBy: {
+          id: 'asc',
+        },
+      });
+
+      const formatedMessages = messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        date: getTimestampFromMongoObject(message),
+        authorId: message.authorId,
+      }));
+
+      return res.status(200).json({
+        conversationId: conversation.id,
+        receiver: conversation.users[0],
+        messages: formatedMessages,
+      });
     } catch (err) {
       return next({
         status: 400,

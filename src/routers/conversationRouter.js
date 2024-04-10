@@ -1,5 +1,6 @@
 import express from 'express';
 import conversationController from '../controllers/conversationController.js';
+import validateParams from '../middlewares/validateParams.js';
 
 import permissionRequired from '../middlewares/permissionRequired.js';
 import permissions from '../utils/permissions/permissions.js';
@@ -96,5 +97,66 @@ router.get('/', conversationController.getConversations);
  *         description: Receiver not found
  */
 router.post('/', loginRequired, conversationController.newConversation);
+
+/**
+ * @swagger
+ * /api/me/conversations/{conversationId}/messages:
+ *   get:
+ *     summary: Retrieve a conversation with its messages
+ *     tags:
+ *       - conversation
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: conversationId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the conversation to retrieve
+ *     responses:
+ *       '200':
+ *         description: Conversation with messages retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 conversationId:
+ *                   type: integer
+ *                 receiver:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     email:
+ *                       type: string
+ *                     firstname:
+ *                       type: string
+ *                     lastname:
+ *                       type: string
+ *                     profilePictureUrl:
+ *                       type: string
+ *                       format: uri
+ *                 messages:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       content:
+ *                         type: string
+ *                       date:
+ *                         type: string
+ *                         format: date-time
+ *                       authorId:
+ *                         type: integer
+ *       '401':
+ *         description: Unauthorized
+ *       '404':
+ *         description: Conversation not found
+ */
+router.get('/:conversationId/messages', loginRequired, validateParams, conversationController.getOneConversationWithMessages);
 
 export default router;
