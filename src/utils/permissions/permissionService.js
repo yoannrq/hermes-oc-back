@@ -139,10 +139,8 @@ const permissionService = {
     const permission = await mongoClient.permission.findFirst({ where: data });
 
     if (permission) {
-      console.log('Restore user permission', permissionName);
       return permission;
     } else {
-      console.log('Define new user permission ', permissionName);
       return mongoClient.permission.create({ data });
     }
   },
@@ -168,10 +166,8 @@ const permissionService = {
     const permission = await mongoClient.permission.findFirst({ where: data });
 
     if (permission) {
-      console.log('Restore permission', permissionName);
       return permission;
     } else {
-      console.log('Define new permission', permissionName);
       return mongoClient.permission.create({ data });
     }
   },

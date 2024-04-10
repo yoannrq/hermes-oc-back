@@ -3,7 +3,6 @@ import conversationController from '../controllers/conversationController.js';
 
 import permissionRequired from '../middlewares/permissionRequired.js';
 import permissions from '../utils/permissions/permissions.js';
-import permissionService from '../utils/permissions/permissionService.js';
 
 const router = express.Router();
 
