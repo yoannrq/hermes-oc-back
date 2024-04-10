@@ -99,7 +99,7 @@ router.get('/', conversationController.getConversations);
  *       '404':
  *         description: Receiver not found
  */
-router.post('/', loginRequired, conversationController.newConversation);
+router.post('/', conversationController.newConversation);
 
 /**
  * @swagger
@@ -183,6 +183,6 @@ router.post('/', loginRequired, conversationController.newConversation);
  *       '404':
  *         description: Conversation not found
  */
-router.get('/:conversationId/messages', loginRequired, conversationController.getOneConversationWithMessages);
+router.get('/:conversationId/messages', conversationController.getOneConversationWithMessages);
 
 export default router;

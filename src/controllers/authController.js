@@ -8,6 +8,10 @@ import postgresClient from '../models/postgresClient.js';
 import userSchema from '../utils/validation/userSchema.js';
 import formatingName from '../utils/formatingName.js';
 
+const ONE_SECOND = 1000;
+const ONE_MINUTE = ONE_SECOND * 60;
+const ONE_HOUR = ONE_MINUTE * 60;
+
 export default {
   signup: async (req, res, next) => {
     try {
@@ -95,7 +99,7 @@ export default {
       const cookieOptions = {
         httpOnly: true, // Le cookie n'est pas accessible via JavaScript côté client
         secure: process.env.NODE_ENV === 'production', // En production, envoyer le cookie uniquement sur HTTPS
-        maxAge: 3600000, // Durée de vie du cookie 1 heure
+        maxAge: ONE_HOUR, // Durée de vie du cookie 1 heure
         sameSite: 'strict', // Le cookie est envoyé uniquement pour les requêtes du même site
       };
       res.cookie('Authorization', token, cookieOptions);
