@@ -1,8 +1,12 @@
 import express from 'express';
-import loginRequired from '../middlewares/loginRequired.js';
 import conversationController from '../controllers/conversationController.js';
 
+import permissionRequired from '../middlewares/permissionRequired.js';
+import permissions from '../utils/permissions/permissions.js';
+
 const router = express.Router();
+
+router.use(permissionRequired(permissions.conversation.all.canRead));
 
 /**
  * @swagger
@@ -32,6 +36,6 @@ const router = express.Router();
  *       '404':
  *         description: Utilisateur non trouvé
  */
-router.get('/', loginRequired, conversationController.getConversations);
+router.get('/', conversationController.getConversations);
 
 export default router;

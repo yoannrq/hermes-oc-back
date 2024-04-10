@@ -33,13 +33,15 @@ export default {
       }
 
       // Formatage des données pour renvoyer uniquement l'id de la conversation et l'email du destinataire
-      const conversations = userWithConversations.conversations.map((conversation) => {
-        const users = conversation.users.map((receiver) => receiver.email);
-        return {
-          id: conversation.id,
-          receiver: users[0],
-        };
-      });
+      const conversations = userWithConversations.conversations.map(
+        (conversation) => {
+          const users = conversation.users.map((receiver) => receiver.email);
+          return {
+            id: conversation.id,
+            receiver: users[0],
+          };
+        },
+      );
 
       return res.status(200).json(conversations);
     } catch (err) {

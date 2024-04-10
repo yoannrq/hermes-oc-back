@@ -20,19 +20,14 @@ export default {
         });
       }
 
-      const {
-        email, firstname, lastname, password, rppsCode,
-      } = data;
+      const { email, firstname, lastname, password, rppsCode } = data;
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Vérification si le mail ou le code RPPS existe déjà en BDD
       const user = await postgresClient.user.findFirst({
         where: {
-          OR: [
-            { email },
-            { rppsCode },
-          ],
+          OR: [{ email }, { rppsCode }],
         },
       });
 
@@ -104,8 +99,14 @@ export default {
       }
 
       // Générer un token JWT
-      const privateKey = fs.readFileSync(process.env.PATH_TO_PRIVATE_KEY, 'utf8');
-      const token = jwt.sign({ userId: user.id }, privateKey, { expiresIn: '1h', algorithm: 'ES256' });
+      const privateKey = fs.readFileSync(
+        process.env.PATH_TO_PRIVATE_KEY,
+        'utf8',
+      );
+      const token = jwt.sign({ userId: user.id }, privateKey, {
+        expiresIn: '1h',
+        algorithm: 'ES256',
+      });
 
       // Ajouter le token dans les headers de la réponse
       res.setHeader('Authorization', `Bearer ${token}`);
@@ -126,5 +127,4 @@ export default {
       return next(error);
     }
   },
-
 };

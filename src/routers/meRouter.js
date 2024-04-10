@@ -1,7 +1,12 @@
 import express from 'express';
 import meController from '../controllers/meController.js';
 
+import conversationRouter from './conversationRouter.js';
+
 const router = express.Router();
+
+// Routes conversations
+router.use('/conversations', conversationRouter);
 
 /**
  * @swagger

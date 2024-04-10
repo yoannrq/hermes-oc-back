@@ -36,11 +36,12 @@ model LastMessageRead {
 }
 
 model Permission {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  tableName String @map("tbl")
-  name      String @map("n")
-  roleId    Int    @map("rId")
-  recordId  Int?   @map("rcId")
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  tableName      String @map("tbl")
+  permissionName String @map("n")
+  roleId         Int?   @map("rId")
+  userId         Int?   @map("uId")
+  recordId       Int?   @map("rcId")
 }
 
 model RefreshToken {

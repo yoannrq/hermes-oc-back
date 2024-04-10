@@ -1,7 +1,7 @@
 import '../helpers/envLoader.js';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { PrismaClient } from '@prisma/mongodb/client/index.js';
-import { ObjectId } from 'bson';
+// import { ObjectId } from 'bson';
 
 const mongoClient = new PrismaClient();
 
