@@ -72,13 +72,6 @@ export default {
       return res.status(200).json({ message: 'No messages' });
     }
 
-    if (!conversationId && !channelId && !teamId) {
-      return next({
-        status: 400,
-        message: 'Missing conversationId, channelId or teamId',
-      });
-    }
-
     if ((conversationId && channelId) || (conversationId && teamId) || (channelId && teamId)) {
       return next({
         status: 400,
@@ -86,13 +79,31 @@ export default {
       });
     }
 
-    // TODO A modifier pour prendre en compte les channels et les teams
+    let entryType;
+    let entryId;
+
+    if (conversationId) {
+      entryType = 'conversationId';
+      entryId = parseInt(conversationId, 10);
+    } else if (channelId) {
+      entryType = 'channelId';
+      entryId = parseInt(channelId, 10);
+    } else if (teamId) {
+      entryType = 'teamId';
+      entryId = parseInt(teamId, 10);
+    } else {
+      return res.status(400).json({
+        status: 400,
+        message: 'Missing conversationId, channelId, or teamId',
+      });
+    }
+
     try {
       const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
         where: {
           AND: [
             { readerId: parseInt(user.id, 10) },
-            { conversationId: parseInt(conversationId, 10) },
+            { [entryType]: entryId },
           ],
         },
       });
@@ -109,7 +120,7 @@ export default {
           data: {
             messageId,
             readerId: parseInt(user.id, 10),
-            conversationId: parseInt(conversationId, 10),
+            [entryType]: entryId,
           },
         });
       }
