@@ -1,91 +1,161 @@
-const crud = {
-  canCreate: 'canCreate',
-  canRead: 'canRead',
-  canUpdate: 'canUpdate',
-  canDelete: 'canDelete',
-};
-
 const permissions = {
   // [ postgres table name ]
   user: {
-    all: { ...crud },
+    all: {
+      canCreateUser: 'canCreateUser',
+      canReadUser: 'canReadUser',
+      canUpdateUser: 'canUpdateUser',
+      canDeleteUser: 'canDeleteUser',
+    },
     one: {},
   },
   speciality: {
-    all: { ...crud },
+    all: {
+      canCreateSpeciality: 'canCreateSpeciality',
+      canReadSpeciality: 'canReadSpeciality',
+      canUpdateSpeciality: 'canUpdateSpeciality',
+      canDeleteSpeciality: 'canDeleteSpeciality',
+    },
     one: {},
   },
   role: {
-    all: { ...crud },
+    all: {
+      canCreateRole: 'canCreateRole',
+      canReadRole: 'canReadRole',
+      canUpdateRole: 'canUpdateRole',
+      canDeleteRole: 'canDeleteRole',
+    },
     one: {},
   },
   team: {
-    all: { ...crud },
+    all: {
+      canCreateTeam: 'canCreateTeam',
+      canReadTeam: 'canReadTeam',
+      canUpdateTeam: 'canUpdateTeam',
+      canDeleteTeam: 'canDeleteTeam',
+    },
     one: {
       canAddUserInTeamId: 'canAddUserInTeamId',
       canRemoveUserInTeamId: 'canRemoveUserInTeamId',
     },
   },
   setting: {
-    all: { ...crud },
+    all: {
+      canCreateSetting: 'canCreateSetting',
+      canReadSetting: 'canReadSetting',
+      canUpdateSetting: 'canUpdateSetting',
+      canDeleteSetting: 'canDeleteSetting',
+    },
     one: {},
   },
   settingKey: {
-    all: { ...crud },
+    all: {
+      canCreateSettingKey: 'canCreateSettingKey',
+      canReadSettingKey: 'canReadSettingKey',
+      canUpdateSettingKey: 'canUpdateSettingKey',
+      canDeleteSettingKey: 'canDeleteSettingKey',
+    },
     one: {},
   },
   conversation: {
-    all: { ...crud },
+    all: {
+      canCreateConversation: 'canCreateConversation',
+      canReadConversation: 'canReadConversation',
+      canUpdateConversation: 'canUpdateConversation',
+      canDeleteConversation: 'canDeleteConversation',
+    },
     one: {},
   },
   patient: {
-    all: {
-      ...crud,
-    },
-    one: {
-      canAssignUserToPatientId: 'canAssignUserToPatientId',
-      canUnassignUserToPatientId: 'canUnassignUserToPatientId',
-    },
+    canCreatePatient: 'canCreatePatient',
+    canReadPatient: 'canReadPatient',
+    canUpdatePatient: 'canUpdatePatient',
+    canDeletePatient: 'canDeletePatient',
   },
   channel: {
-    all: { ...crud },
+    all: {
+      canCreateChannel: 'canCreateChannel',
+      canReadChannel: 'canReadChannel',
+      canUpdateChannel: 'canUpdateChannel',
+      canDeleteChannel: 'canDeleteChannel',
+    },
     one: {},
   },
   channelType: {
-    all: { ...crud },
+    all: {
+      canCreateChannelType: 'canCreateChannelType',
+      canReadChannelType: 'canReadChannelType',
+      canUpdateChannelType: 'canUpdateChannelType',
+      canDeleteChannelType: 'canDeleteChannelType',
+    },
     one: {
       canReadInChannelTypeId: 'canReadInChannelTypeId',
       canWriteInChannelTypeId: 'canWriteInChannelTypeId',
     },
   },
   zipCode: {
-    all: { ...crud },
+    all: {
+      canCreateZipCode: 'canCreateZipCode',
+      canReadZipCode: 'canReadZipCode',
+      canUpdateZipCode: 'canUpdateZipCode',
+      canDeleteZipCode: 'canDeleteZipCode',
+    },
     one: {},
   },
   city: {
-    all: { ...crud },
+    all: {
+      canCreateCity: 'canCreateCity',
+      canReadCity: 'canReadCity',
+      canUpdateCity: 'canUpdateCity',
+      canDeleteCity: 'canDeleteCity',
+    },
     one: {},
   },
 
   // [ mongo table name ]
   message: {
-    all: { ...crud },
+    all: {
+      canCreateMessage: 'canCreateMessage',
+      canReadMessage: 'canReadMessage',
+      canUpdateMessage: 'canUpdateMessage',
+      canDeleteMessage: 'canDeleteMessage',
+    },
     one: {},
   },
   attachment: {
-    all: { ...crud },
+    all: {
+      canCreateAttachment: 'canCreateAttachment',
+      canReadAttachment: 'canReadAttachment',
+      canUpdateAttachment: 'canUpdateAttachment',
+      canDeleteAttachment: 'canDeleteAttachment',
+    },
     one: {},
   },
   lastMessageRead: {
-    all: { ...crud },
+    all: {
+      canCreateLastMessageRead: 'canCreateLastMessageRead',
+      canReadLastMessageRead: 'canReadLastMessageRead',
+      canUpdateLastMessageRead: 'canUpdateLastMessageRead',
+      canDeleteLastMessageRead: 'canDeleteLastMessageRead',
+    },
     one: {},
   },
   permission: {
-    all: { ...crud },
+    all: {
+      canCreatePermission: 'canCreatePermission',
+      canReadPermission: 'canReadPermission',
+      canUpdatePermission: 'canUpdatePermission',
+      canDeletePermission: 'canDeletePermission',
+    },
     one: {},
   },
   refreshToken: {
-    all: { ...crud },
+    all: {
+      canCreateRefreshToken: 'canCreateRefreshToken',
+      canReadRefreshToken: 'canReadRefreshToken',
+      canUpdateRefreshToken: 'canUpdateRefreshToken',
+      canDeleteRefreshToken: 'canDeleteRefreshToken',
+    },
     one: {},
   },
 };
