@@ -67,10 +67,13 @@ const permissions = {
     one: {},
   },
   patient: {
-    canCreatePatient: 'canCreatePatient',
-    canReadPatient: 'canReadPatient',
-    canUpdatePatient: 'canUpdatePatient',
-    canDeletePatient: 'canDeletePatient',
+    all: {
+      canCreatePatient: 'canCreatePatient',
+      canReadPatient: 'canReadPatient',
+      canUpdatePatient: 'canUpdatePatient',
+      canDeletePatient: 'canDeletePatient',
+    },
+    one: {},
   },
   channel: {
     all: {
@@ -162,6 +165,7 @@ const permissions = {
 
 for (const tableName of Object.keys(permissions)) {
   const table = permissions[tableName];
+
   permissions[tableName] = {
     all: Object.fromEntries(
       Object.entries(table.all).map(([pKey, pName]) => [
