@@ -2,11 +2,15 @@ import express from 'express';
 import meController from '../controllers/meController.js';
 
 import conversationRouter from './conversationRouter.js';
+import messageRouter from './messageRouter.js';
 
 const router = express.Router();
 
 // Routes conversations
 router.use('/conversations', conversationRouter);
+
+// Routes messages
+router.use('/messages', messageRouter);
 
 /**
  * @swagger
@@ -26,6 +30,8 @@ router.use('/conversations', conversationRouter);
  *               $ref: '#/components/schemas/user'
  *       401:
  *         description: Unauthorized.
+ *       500:
+ *       description: Internal server error.
  */
 router.get('/', meController.getMe);
 
@@ -53,6 +59,8 @@ router.get('/', meController.getMe);
  *               $ref: '#/components/schemas/user'
  *       401:
  *         description: Unauthorized.
+ *       500:
+ *        description: Internal server error.
  */
 router.patch('/', meController.updateMe);
 
@@ -104,6 +112,8 @@ router.patch('/', meController.updateMe);
  *         description: Bad request - missing or incorrect parameters.
  *       401:
  *         description: Unauthorized.
+ *       500:
+ *        description: Internal server error.
  */
 router.patch('/last-message-read', meController.updateLastMessageRead);
 

@@ -106,8 +106,8 @@ export default {
       return res.status(200).json(conversationsWithMessages);
     } catch (err) {
       return next({
-        status: 400,
-        message: 'Bad request',
+        status: 500,
+        message: 'Internal server error',
         error: err,
       });
     }
@@ -143,8 +143,8 @@ export default {
       return res.status(201).json(conversation);
     } catch (err) {
       return next({
-        status: 400,
-        message: 'Bad request',
+        status: 500,
+        message: 'Internal server error',
         error: err,
       });
     }
@@ -222,12 +222,18 @@ export default {
         take: pageSize,
       });
 
-      const formatedMessages = messages.map((message) => ({
-        id: message.id,
-        content: message.content,
-        date: getTimestampFromMongoObject(message),
-        authorId: message.authorId,
-      }));
+      const formatedMessages = messages.map((message) => {
+        // Vérifier si le message est soft-delete avant de retourner l'objet
+        const content = message.deleted ? 'This message has been deleted' : message.content;
+      
+        return {
+          id: message.id,
+          content: content,
+          date: getTimestampFromMongoObject(message),
+          authorId: message.authorId,
+        };
+      });
+      
 
       return res.status(200).json({
         conversationId: conversation.id,
@@ -242,8 +248,8 @@ export default {
       });
     } catch (err) {
       return next({
-        status: 400,
-        message: 'Bad request',
+        status: 500,
+        message: 'Internal server error',
         error: err,
       });
     }

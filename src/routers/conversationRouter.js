@@ -6,9 +6,9 @@ import permissions from '../utils/permissions/permissions.js';
 
 const router = express.Router();
 
-router.use(
+/* router.use(
   permissionRequired(permissions.conversation.all.canReadConversation),
-);
+); */
 
 /**
  * @swagger
@@ -65,6 +65,8 @@ router.use(
  *         description: Unauthorized
  *       '404':
  *         description: User not found
+ *       '500':
+ *         description: Internal server error
  */
 router.get('/', conversationController.getConversations);
 
@@ -95,10 +97,12 @@ router.get('/', conversationController.getConversations);
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/message'
- *       '401':
+ *       401:
  *         description: Unauthorized
- *       '404':
+ *       404:
  *         description: Receiver not found
+ *       500:
+ *        description: Internal server error
  */
 router.post('/', conversationController.newConversation);
 
@@ -179,10 +183,12 @@ router.post('/', conversationController.newConversation);
  *                       type: integer
  *                     totalPages:
  *                       type: integer
- *       '401':
+ *       401:
  *         description: Unauthorized
- *       '404':
+ *       404:
  *         description: Conversation not found
+ *       500:
+ *       description: Internal server error
  */
 router.get(
   '/:conversationId/messages',

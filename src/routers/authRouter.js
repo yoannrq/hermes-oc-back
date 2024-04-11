@@ -42,7 +42,14 @@ router.post('/signup', authController.signup);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/user'
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: The email of the user to log in.
+ *               password:
+ *                 type: string
+ *                 description: The password of the user to log in.
  *     responses:
  *       200:
  *         description: User logged in successfully.

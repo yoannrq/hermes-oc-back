@@ -12,7 +12,7 @@ export default {
       roles: res.locals.user.roles.map((userHasRole) => userHasRole.role),
     };
 
-    return res.status(200).json({ user });
+    return res.status(200).json(user);
   },
 
   updateMe: async (req, res, next) => {
@@ -55,8 +55,8 @@ export default {
       return res.status(200).json(updatedUser);
     } catch (err) {
       return next({
-        status: 400,
-        message: 'Bad request',
+        status: 500,
+        message: 'Internal server error',
         error: err,
       });
     }
@@ -128,8 +128,8 @@ export default {
       return res.status(200).json({ message: 'Last message read updated' });
     } catch (err) {
       return next({
-        status: 400,
-        message: 'Bad request',
+        status: 500,
+        message: 'Internal server error',
         error: err,
       });
     }
