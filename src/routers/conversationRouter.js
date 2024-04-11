@@ -6,7 +6,9 @@ import permissions from '../utils/permissions/permissions.js';
 
 const router = express.Router();
 
-router.use(permissionRequired(permissions.conversation.all.canRead));
+router.use(
+  permissionRequired(permissions.conversation.all.canReadConversation),
+);
 
 /**
  * @swagger
@@ -182,6 +184,9 @@ router.post('/', conversationController.newConversation);
  *       '404':
  *         description: Conversation not found
  */
-router.get('/:conversationId/messages', conversationController.getOneConversationWithMessages);
+router.get(
+  '/:conversationId/messages',
+  conversationController.getOneConversationWithMessages,
+);
 
 export default router;
