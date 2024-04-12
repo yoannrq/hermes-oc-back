@@ -6,7 +6,7 @@ import '../helpers/envLoader.js';
 // [ local imports ]
 import postgresClient from '../models/postgresClient.js';
 import userSchema from '../utils/validation/userSchema.js';
-import formatingName from '../utils/formatingName.js';
+import formatingName from '../utils/formatingFunctions/formatingName.js';
 
 const ONE_SECOND = 1000;
 const ONE_MINUTE = ONE_SECOND * 60;
@@ -27,7 +27,9 @@ export default {
         });
       }
 
-      const { email, firstname, lastname, password, rppsCode } = data;
+      const {
+        email, firstname, lastname, password, rppsCode,
+      } = data;
 
       const hashedPassword = await bcrypt.hash(password, 10);
 

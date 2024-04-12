@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import postgresClient from '../models/postgresClient.js';
 import userSchema from '../utils/validation/userSchema.js';
-import formatingName from '../utils/formatingName.js';
+import formatingName from '../utils/formatingFunctions/formatingName.js';
 import mongoClient from '../models/mongoClient.js';
 
 export default {

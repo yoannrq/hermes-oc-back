@@ -1,6 +1,6 @@
 import postgresClient from '../models/postgresClient.js';
 import mongoClient from '../models/mongoClient.js';
-import getTimestampFromMongoObject from '../utils/getTimestampFromMongoObject.js';
+import getTimestampFromMongoObject from '../utils/formatingFunctions/getTimestampFromMongoObject.js';
 
 export default {
   getConversations: async (req, res, next) => {
@@ -141,111 +141,6 @@ export default {
       });
 
       return res.status(201).json(conversation);
-    } catch (err) {
-      return next({
-        status: 500,
-        message: 'Internal server error',
-        error: err,
-      });
-    }
-  },
-
-  getOneConversationWithMessages: async (req, res, next) => {
-    const { user } = res.locals;
-    const conversationId = parseInt(req.params.conversationId, 10);
-
-    const page = parseInt(req.query.page, 10) || 1;
-    const pageSize = parseInt(req.query.pageSize, 10) || 10;
-
-    if (conversationId.isNaN) {
-      return next({
-        status: 400,
-        message: 'Invalidate parameter',
-      });
-    }
-
-    try {
-      const conversation = await postgresClient.conversation.findFirst({
-        where: {
-          id: conversationId,
-          users: {
-            some: {
-              id: user.id,
-            },
-          },
-        },
-        include: {
-          users: {
-            select: {
-              id: true,
-              email: true,
-              firstname: true,
-              lastname: true,
-              profilePictureUrl: true,
-            },
-            where: {
-              id: {
-                not: user.id,
-              },
-            },
-          },
-        },
-      });
-
-      if (!conversation) {
-        return next({
-          status: 404,
-          message: 'Conversation not found',
-        });
-      }
-
-      const totalMessages = await mongoClient.message.count({
-        where: {
-          conversationId,
-        },
-      });
-
-      // Calcul du nombre total de pages pour la pagination
-      const totalPages = Math.ceil(totalMessages / pageSize);
-
-      // Calcul de l'offset pour servir les messages de la page demandée
-      const offset = (page - 1) * pageSize;
-
-      const messages = await mongoClient.message.findMany({
-        where: {
-          conversationId,
-        },
-        orderBy: {
-          id: 'asc',
-        },
-        skip: offset,
-        take: pageSize,
-      });
-
-      const formatedMessages = messages.map((message) => {
-        // Vérifier si le message est soft-delete avant de retourner l'objet
-        const content = message.deleted ? 'This message has been deleted' : message.content;
-      
-        return {
-          id: message.id,
-          content: content,
-          date: getTimestampFromMongoObject(message),
-          authorId: message.authorId,
-        };
-      });
-      
-
-      return res.status(200).json({
-        conversationId: conversation.id,
-        receiver: conversation.users[0],
-        messages: formatedMessages,
-        pagination: {
-          page,
-          pageSize,
-          totalMessages,
-          totalPages,
-        },
-      });
     } catch (err) {
       return next({
         status: 500,

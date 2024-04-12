@@ -3,7 +3,6 @@ import messageController from '../controllers/messageController.js';
 
 const router = express.Router();
 
-
 /**
  * @swagger
  * /api/me/messages:
@@ -123,5 +122,94 @@ router.patch('/:messageId', messageController.updateMessage);
  *         description: Internal server error (e.g., could not delete the message due to server error)
  */
 router.delete('/:messageId', messageController.deleteMessage);
+
+/**
+ * @swagger
+ * /api/me/{roomType(team|conversation|channel)}/{roomId}:
+ *   get:
+ *     summary: Retrieve messages from a specific room based on room type and room ID, with pagination
+ *     tags:
+ *       - message
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: roomType
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [team, conversation, channel]
+ *         description: The type of the room to retrieve messages from
+ *       - in: path
+ *         name: roomId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the room to retrieve messages from
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number of the message list
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of messages per page
+ *     responses:
+ *       '200':
+ *         description: Room messages retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 roomType:
+ *                   type: string
+ *                   description: The type of the room
+ *                 roomId:
+ *                   type: integer
+ *                   description: The ID of the room
+ *                 messages:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       content:
+ *                         type: string
+ *                       date:
+ *                         type: string
+ *                         format: date-time
+ *                       authorId:
+ *                         type: integer
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                     pageSize:
+ *                       type: integer
+ *                     totalMessages:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     originTimestamp:
+ *                       type: string
+ *                       format: date-time
+ *                       description: The original timestamp when the query was made
+ *       '400':
+ *         description: Invalid request parameters
+ *       '401':
+ *         description: Unauthorized access
+ *       '404':
+ *         description: Room not found
+ *       '500':
+ *         description: Internal server error
+ */
+router.get('/:roomType(team|conversation|channel)/:roomId', messageController.getOneRoomWithMessages);
 
 export default router;

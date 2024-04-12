@@ -1,40 +1,25 @@
 import postgresClient from '../models/postgresClient.js';
 import mongoClient from '../models/mongoClient.js';
-import getTimestampFromMongoObject from '../utils/getTimestampFromMongoObject.js';
+import getTimestampFromMongoObject from '../utils/formatingFunctions/getTimestampFromMongoObject.js';
 
 export default {
   getPatients: async (req, res, next) => {
     const { user } = res.locals;
 
     const patientsWithChannels = await postgresClient.patient.findMany({
-      where: {
-        users: {
-          some: {
-            id: user.id,
-          },
-        },
-      },
-      include: {
-        channels: {
-          include: {
-            channelType: true,
-          },
-        },
-      },
+      where: { users: { some: { id: user.id } } },
+      include: { channels: { include: { channelType: true } } },
     });
 
-    let patientsWithChannelsAndMessages = [];
+    const patientsWithChannelsAndMessages = [];
 
     for (const patient of patientsWithChannels) {
       // Parcours chaque channel pour enrichir les données avec le dernier message et le nombre de messages non lus
       const channelsWithMessages = await Promise.all(patient.channels.map(async (channel) => {
         // Récupère le dernier message du channel courant
         const lastMessage = await mongoClient.message.findMany({
-          where: {
-            channelId: channel.id,
-          },
-          orderBy: {
-            id: 'desc', // Tri par ordre décroissant pour obtenir le dernier message
+          where: { channelId: channel.id },
+          orderBy: { id: 'desc', // Tri par ordre décroissant pour obtenir le dernier message
           },
           take: 1, // Prend seulement le premier résultat qui est le dernier message
         });
@@ -61,11 +46,7 @@ export default {
           });
         } else {
           // Si aucun message n'a été lu, compte tous les messages comme non lus dans ce channel
-          unreadMessagesCount = await mongoClient.message.count({
-            where: {
-              channelId: channel.id,
-            },
-          });
+          unreadMessagesCount = await mongoClient.message.count({ where: { channelId: channel.id } });
         }
 
         // Récupère la date du dernier message pour l'afficher dans le channel
@@ -76,11 +57,7 @@ export default {
         }
 
         // Compte le nombre total de messages dans le channel
-        const totalMessages = await mongoClient.message.count({
-          where: {
-            channelId: channel.id,
-          },
-        });
+        const totalMessages = await mongoClient.message.count({ where: { channelId: channel.id } });
 
         // Retourne le channel enrichie avec le dernier message, le nombre de messages non lus et le nombre total de messages
         return {
@@ -92,22 +69,20 @@ export default {
       }));
       patientsWithChannelsAndMessages.push({
         ...patient,
-        channels: channelsWithMessages
+        channels: channelsWithMessages,
       });
     }
 
     const formatedPatientsWithChannelsAndMessages = patientsWithChannelsAndMessages.map((patient) => {
-      const formatedChannels = patient.channels.map((channel) => {
-        return {
-          id: channel.id,
-          name: channel.channelType.name,
-          color: channel.channelType.color,
-          order: channel.channelType.order,
-          lastMessage: channel.lastMessage,
-          unreadMessagesCount: channel.unreadMessagesCount,
-          totalMessages: channel.totalMessages,
-        };
-      });
+      const formatedChannels = patient.channels.map((channel) => ({
+        id: channel.id,
+        name: channel.channelType.name,
+        color: channel.channelType.color,
+        order: channel.channelType.order,
+        lastMessage: channel.lastMessage,
+        unreadMessagesCount: channel.unreadMessagesCount,
+        totalMessages: channel.totalMessages,
+      }));
 
       return {
         id: patient.id,
