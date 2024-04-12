@@ -204,7 +204,7 @@ export default {
     const { roomType } = req.params;
 
     // Définition du timestamp d'origine à partir de la requête, ou utilisation du timestamp actuel si non fourni
-    const originTimestamp = req.query.originTime ? req.query.originTime : new Date().toISOString();
+    const originTimestamp = req.query.originTime ? req.query.originTime : Date.now();
     const page = parseInt(req.query.page, 10) || 1;
     const pageSize = parseInt(req.query.pageSize, 10) || 10;
 
