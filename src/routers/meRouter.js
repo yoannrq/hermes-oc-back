@@ -11,11 +11,7 @@ const router = express.Router();
 // Routes privates
 router.use('/privates', privateRouter);
 router.use('/teams', teamsRouter);
-
-// Routes messages
 router.use('/messages', messageRouter);
-
-// Routes patients
 router.use('/patients', patientRouter);
 
 /**
