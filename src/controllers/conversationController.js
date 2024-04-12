@@ -11,7 +11,7 @@ export default {
         where: {
           users: {
             some: {
-              email: user.email,
+              id: user.id,
             },
           },
         },
@@ -25,8 +25,8 @@ export default {
               profilePictureUrl: true,
             },
             where: {
-              email: {
-                not: user.email,
+              id: {
+                not: user.id,
               },
             },
           },
@@ -68,7 +68,7 @@ export default {
           unreadMessagesCount = await mongoClient.message.count({
             where: {
               conversationId: conversation.conversationid,
-              id: { gt: lastReadMessageId }, // Compte les messages ayant un ID supérieur au dernier message lu
+              id: { gt: lastReadMessageId }, // Selectionne les messages ayant un ID supérieur au dernier message lu
             },
           });
         } else {
@@ -170,7 +170,7 @@ export default {
           id: conversationId,
           users: {
             some: {
-              email: user.email,
+              id: user.id,
             },
           },
         },
@@ -184,8 +184,8 @@ export default {
               profilePictureUrl: true,
             },
             where: {
-              email: {
-                not: user.email,
+              id: {
+                not: user.id,
               },
             },
           },

@@ -3,6 +3,7 @@ import meController from '../controllers/meController.js';
 
 import conversationRouter from './conversationRouter.js';
 import messageRouter from './messageRouter.js';
+import patientRouter from './patientRouter.js';
 
 const router = express.Router();
 
@@ -11,6 +12,9 @@ router.use('/conversations', conversationRouter);
 
 // Routes messages
 router.use('/messages', messageRouter);
+
+// Routes patients
+router.use('/patients', patientRouter);
 
 /**
  * @swagger

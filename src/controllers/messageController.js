@@ -17,6 +17,7 @@ export default {
       });
     }
 
+  try {
     let entryType;
     let entryId;
 
@@ -26,9 +27,56 @@ export default {
     } else if (channelId) {
       entryType = 'channelId';
       entryId = parseInt(channelId, 10);
+
+      // Vérification que l'utilisateur est bien associé au patient
+      const patientId = await postgresClient.channel.findFirst({
+        where: { id: entryId },
+        select: { patientId: true },
+      });
+
+      const isAssociatedWithPatient = await postgresClient.patient.findFirst({
+        where: {
+          AND: [
+            { id: patientId.patientId },
+            { users: 
+              { some: 
+                { 
+                  email: user.email 
+                } 
+              } 
+            },
+          ],
+        },
+      });
+
+      if (!isAssociatedWithPatient) {
+        return res.status(403).json({ message: 'This user is not associated with the patient'});
+      }
+
     } else if (teamId) {
       entryType = 'teamId';
       entryId = parseInt(teamId, 10);
+
+      // Vérification que l'utilisateur est bien membre de l'équipe
+      const isInTeam = await postgresClient.team.findFirst({
+        where: {
+          AND: [
+            { id: entryId },
+            { users: 
+              { some: 
+                { 
+                  email: user.email 
+                } 
+              } 
+            },
+          ],
+        },
+      });
+
+      if (!isInTeam) {
+        return res.status(403).json({ message: 'Not member of the team'});
+      }
+
     } else {
       return res.status(400).json({
         status: 400,
@@ -36,7 +84,6 @@ export default {
       });
     }
 
-    try {
       const newMessage = await mongoClient.message.create({
         data: {
           [entryType]: entryId,
