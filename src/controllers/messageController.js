@@ -7,6 +7,8 @@ import getObjectIdFromTimestamp from '../utils/formatingFunctions/getObjectIdFro
 export default {
   createMessage: async (req, res, next) => {
     const { user } = res.locals;
+
+    // TODO : use { roomType, roomId, content }
     const {
       conversationId, channelId, teamId, content,
     } = req.body;
@@ -204,7 +206,7 @@ export default {
     const { roomType } = req.params;
 
     // Définition du timestamp d'origine à partir de la requête, ou utilisation du timestamp actuel si non fourni
-    const originTimestamp = req.query.originTime ? req.query.originTime : Date.now();
+    const originTimestamp = req.query.originTimestamp ? parseInt(req.query.originTimestamp, 10) : Date.now();
     const page = parseInt(req.query.page, 10) || 1;
     const pageSize = parseInt(req.query.pageSize, 10) || 10;
 
@@ -244,10 +246,15 @@ export default {
             { id: { lt: originObjectId } },
           ],
         },
-        orderBy: { id: 'asc' },
+        orderBy: { id: 'desc' }, // order desc pour la pagination
         skip: offset,
         take: pageSize,
       });
+
+      // reverse pour l'orde de la page actuelle
+      if (messages) {
+        messages.reverse();
+      }
 
       const formatedMessages = messages.map((message) => {
         // Vérifier si le message est soft-delete avant de retourner l'objet

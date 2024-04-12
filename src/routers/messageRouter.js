@@ -125,7 +125,7 @@ router.delete('/:messageId', messageController.deleteMessage);
 
 /**
  * @swagger
- * /api/me/{roomType(team|conversation|channel)}/{roomId}:
+ * /api/me/messages/{roomType(team|conversation|channel)}/{roomId}:
  *   get:
  *     summary: Retrieve messages from a specific room based on room type and room ID, with pagination
  *     tags:

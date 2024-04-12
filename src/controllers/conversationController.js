@@ -81,10 +81,10 @@ export default {
         }
 
         // Récupère la date du dernier message pour l'afficher dans la conversation
-        const lastMessageDate = lastMessage[0] ? getTimestampFromMongoObject(lastMessage[0]) : null;
+        const lastMessageDate = lastMessage ? getTimestampFromMongoObject(lastMessage) : null;
 
-        if (lastMessage[0].deleted) {
-          lastMessage[0].content = 'This message has been deleted';
+        if (lastMessage.deleted) {
+          lastMessage.content = 'This message has been deleted';
         }
 
         // Compte le nombre total de messages dans la conversation
@@ -97,7 +97,7 @@ export default {
         // Retourne la conversation enrichie avec le dernier message, le nombre de messages non lus et le nombre total de messages
         return {
           ...conversation,
-          lastMessage: { content: lastMessage[0].content, date: lastMessageDate }, // Récupère le content du message et la date
+          lastMessage: { content: lastMessage.content, date: lastMessageDate }, // Récupère le content du message et la date
           unreadMessagesCount, // Ajoute le nombre de messages non lus à l'objet de la conversation
           totalMessages, // Ajoute le nombre total de messages à l'objet de la conversation
         };
