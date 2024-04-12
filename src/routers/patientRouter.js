@@ -7,7 +7,7 @@ const router = express.Router();
  * @swagger
  * /api/me/patients:
  *   get:
- *     summary: Retrieve a list of patients with their associated channels
+ *     summary: Retrieve a list of patients with their last message details
  *     tags:
  *       - patient
  *     security:
@@ -28,32 +28,48 @@ const router = express.Router();
  *                     type: string
  *                   lastname:
  *                     type: string
- *                   channels:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: integer
- *                         name:
- *                           type: string
- *                         color:
- *                           type: string
- *                           format: color
- *                         order:
- *                           type: integer
- *                         lastMessage:
- *                           type: object
- *                           properties:
- *                             content:
- *                               type: string
- *                             date:
- *                               type: string
- *                               format: date-time
- *                         unreadMessagesCount:
- *                           type: integer
- *                         totalMessages:
- *                           type: integer
+ *                   birthdate:
+ *                     type: string
+ *                     format: date-time
+ *                   socialSecurityNumber:
+ *                     type: string
+ *                   phoneNumber:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   address:
+ *                     type: string
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                   lastMessage:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       sourceMessageId:
+ *                         type: string
+ *                         nullable: true
+ *                       content:
+ *                         type: string
+ *                       date:
+ *                         type: string
+ *                         format: date-time
+ *                       deleted:
+ *                         type: boolean
+ *                       authorId:
+ *                         type: integer
+ *                       conversationId:
+ *                         type: integer
+ *                         nullable: true
+ *                       teamId:
+ *                         type: integer
+ *                         nullable: true
+ *                       channelId:
+ *                         type: integer
  *       '401':
  *         description: Unauthorized
  *       '404':

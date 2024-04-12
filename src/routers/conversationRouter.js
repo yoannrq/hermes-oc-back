@@ -86,8 +86,8 @@ router.get('/', conversationController.getConversations);
  *           schema:
  *             type: object
  *             properties:
- *               receiverEmail:
- *                 type: string
+ *               receiverId:
+ *                 type: integer
  *     responses:
  *       '201':
  *         description: New conversation created

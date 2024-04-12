@@ -20,22 +20,22 @@ router.use('/patients', patientRouter);
  * @swagger
  * /api/me:
  *   get:
- *     summary: Retrieve user informations
+ *     summary: Retrieve user information
  *     tags:
  *       - me
  *     security:
  *       - bearerAuth: []
  *     responses:
- *       200:
- *         description: User informations.
+ *       '200':
+ *         description: User information retrieved successfully.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/user'
- *       401:
- *         description: Unauthorized.
- *       500:
- *       description: Internal server error.
+ *               $ref: '#/components/schemas/User'
+ *       '401':
+ *         description: Unauthorized access.
+ *       '500':
+ *         description: Internal server error.
  */
 router.get('/', meController.getMe);
 
@@ -55,15 +55,15 @@ router.get('/', meController.getMe);
  *           schema:
  *             $ref: '#/components/schemas/user'
  *     responses:
- *       200:
+ *       '200':
  *         description: Updated user informations.
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/user'
- *       401:
+ *       '401':
  *         description: Unauthorized.
- *       500:
+ *       '500':
  *        description: Internal server error.
  */
 router.patch('/', meController.updateMe);
@@ -102,7 +102,7 @@ router.patch('/', meController.updateMe);
  *                 type: integer
  *                 description: The ID of the team to update the last message read, mutually exclusive with conversationId and channelId.
  *     responses:
- *       200:
+ *       '200':
  *         description: Last message read updated successfully.
  *         content:
  *           application/json:
@@ -112,11 +112,11 @@ router.patch('/', meController.updateMe);
  *                 message:
  *                   type: string
  *                   example: 'Last message read updated'
- *       400:
+ *       '400':
  *         description: Bad request - missing or incorrect parameters.
- *       401:
+ *       '401':
  *         description: Unauthorized.
- *       500:
+ *       '500':
  *        description: Internal server error.
  */
 router.patch('/last-message-read', meController.updateLastMessageRead);
