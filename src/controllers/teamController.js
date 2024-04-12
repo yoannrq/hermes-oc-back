@@ -135,8 +135,47 @@ export default {
       }
       console.log('teamWithTeammates: ', teamWithTeammates);
       // maintenant on souhaite ajouter les messages à notre requête
-      const teamMessages = ;
-      return res.status(201).json(teamWithTeammates);
+      const totalMessages = await mongoClient.message.count({
+        where: {
+          TeamId,
+        },
+      });
+
+      // Calcul du nombre total de pages pour la pagination
+      const totalPages = Math.ceil(totalMessages / pageSize);
+
+      // Calcul de l'offset pour servir les messages de la page demandée
+      const offset = (page - 1) * pageSize;
+
+      const messages = await mongoClient.message.findMany({
+        where: {
+          conversationId,
+        },
+        orderBy: {
+          id: 'asc',
+        },
+        skip: offset,
+        take: pageSize,
+      });
+
+      const formatedMessages = messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        date: getTimestampFromMongoObject(message),
+        authorId: message.authorId,
+      }));
+
+      return res.status(200).json({
+        conversationId: conversation.id,
+        receiver: conversation.users[0],
+        messages: formatedMessages,
+        pagination: {
+          page,
+          pageSize,
+          totalMessages,
+          totalPages,
+        },
+      });
     } catch (error) {
       return next({
         status: 500,
