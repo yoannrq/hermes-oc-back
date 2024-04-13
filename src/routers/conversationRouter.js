@@ -86,17 +86,37 @@ router.get('/', conversationController.getConversations);
  *           schema:
  *             type: object
  *             properties:
- *               receiverEmail:
- *                 type: string
+ *               receiverId:
+ *                 type: integer
  *     responses:
- *       '201':
+ *       200:
+ *         description: Conversation already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 created:
+ *                   type: boolean
+ *               example:
+ *                 id: 1
+ *                 created: false
+ *       201:
  *         description: New conversation created
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/message'
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 created:
+ *                   type: boolean
+ *               example:
+ *                 id: 1
+ *                 created: true
  *       401:
  *         description: Unauthorized
  *       404:
