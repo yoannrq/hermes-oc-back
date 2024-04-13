@@ -1,55 +1,43 @@
-import mongoClient from '../models/mongoClient.js';
 import postgresClient from '../models/postgresClient.js';
 
 export default {
 
-  // obtenir les ids des conversations pour un user fournis
-  // /api/me/teams
-
+  // obtenir les ids des conversations pour un user fournis ainsi que le dernier le message.
+  // GET /api/me/teams
   getTeams: async (req, res, next) => {
     const { user } = res.locals;
     try {
-      const teamsWithTeammates = await postgresClient.team.findMany({
-        where: {
-          users: {
-            some: {
-              id: user.id,
-            },
-          },
+      const teams = await postgresClient.team.findMany({
+        select: {
+          id: true,
+          ownerId: true,
+          name: true,
+          color: true,
+          profilePictureUrl: true,
         },
-        include: {
-          users: {
-            select: {
-              id: true,
-              email: true,
-              firstname: true,
-              lastname: true,
-              profilePictureUrl: true,
-            },
-          },
-        },
+        where: { users: { some: { id: user.id } } },
       });
-      console.log('teamsWithTeammates: ', teamsWithTeammates);
+      console.log('teams: ', teams);
       // on veut fournir le dernier message de chaque team
       // Commencons d'abord par récupérer le dernier message pour une team
-      const lastMessage = await mongoClient.message.findFirst({
-        where: {
-          teamId: teamsWithTeammates.id,
-        },
-        orderBy: {
-          id: 'desc', // Tri par ordre décroissant pour obtenir le dernier message
-        },
-      });
+      // const lastMessage = await mongoClient.message.findFirst({
+      //   where: {
+      //     teamId: teamsWithTeammates.id,
+      //   },
+      //   orderBy: {
+      //     id: 'desc', // Tri par ordre décroissant pour obtenir le dernier message
+      //   },
+      // });
 
-      // maintenant faisons en sorte de le récupérer pour toutes les teams
-      const lastMessages = await mongoClient.message.findMany({
+      // // maintenant faisons en sorte de le récupérer pour toutes les teams
+      // const lastMessages = await mongoClient.message.findMany({
 
-      });
+      // });
 
-      console.log('lastmessage: ', lastMessage);
-      // on veut aussi fournir le nombre de message non lus pour chaque team
+      // console.log('lastmessage: ', lastMessage);
+      // // on veut aussi fournir le nombre de message non lus pour chaque team
 
-      return res.json(teamsWithTeammates);
+      return res.json(teams);
     } catch (error) {
       return next({
         status: 500,
@@ -60,48 +48,36 @@ export default {
   },
 
   // Créer une équipe avec les utilisateurs fournis dans le body
-  // /api/me/teams
+  // POST /api/me/teams
   newTeam: async (req, res, next) => {
     const { user } = res.locals;
-    const {
-      teamName, teamColor, teamProfilePictureUrl,
-    } = req.body;
+    const { teamName, teamColor, teamProfilePictureUrl } = req.body;
 
     try {
-      // if (!receiver) {
-      //   return next({
-      //     status: 404,
-      //     message: 'Receiver not found',
-      //   });
-      // }
-
       const team = await postgresClient.team.create({
         data: {
           name: teamName,
           profilePictureUrl: teamProfilePictureUrl,
           color: teamColor,
           ownerId: user.id,
+          users: { connect: { id: user.id } },
         },
       });
       console.log(team);
       return res.status(201).json(team);
-    } catch (err) {
+    } catch (error) {
       return next({
         status: 400,
         message: 'Bad request',
-        error: err,
+        error,
       });
     }
   },
+
   // Obtenir les données d'une équipe (id fourni), inclure les utilisateurs qui la compose
-  // /api/me/teams/:team-id
-
-  getOneTeamWithMessages: async (req, res, next) => {
-    const { user } = res.locals;
+  // GET /api/me/teams/:team-id
+  getOneTeam: async (req, res, next) => {
     const teamId = parseInt(req.params.id, 10);
-
-    const page = parseInt(req.query.page, 10) || 1;
-    const pageSize = parseInt(req.query.pageSize, 10) || 10;
 
     if (teamId.isNaN) {
       return next({
@@ -111,71 +87,16 @@ export default {
     }
 
     try {
-      const teamWithTeammates = await postgresClient.team.findFirst({
-        where: {
-          id: teamId,
-        },
-        include: {
-          users: {
-            select: {
-              id: true,
-              email: true,
-              firstname: true,
-              lastname: true,
-              profilePictureUrl: true,
-            },
-          },
-        },
-      });
+      const team = await postgresClient.team.findFirst({ where: { id: teamId } });
       if (!team) {
         return next({
           status: 404,
           message: 'Team not found',
         });
       }
-      console.log('teamWithTeammates: ', teamWithTeammates);
-      // maintenant on souhaite ajouter les messages à notre requête
-      const totalMessages = await mongoClient.message.count({
-        where: {
-          TeamId,
-        },
-      });
+      console.log('team: ', team);
 
-      // Calcul du nombre total de pages pour la pagination
-      const totalPages = Math.ceil(totalMessages / pageSize);
-
-      // Calcul de l'offset pour servir les messages de la page demandée
-      const offset = (page - 1) * pageSize;
-
-      const messages = await mongoClient.message.findMany({
-        where: {
-          conversationId,
-        },
-        orderBy: {
-          id: 'asc',
-        },
-        skip: offset,
-        take: pageSize,
-      });
-
-      const formatedMessages = messages.map((message) => ({
-        id: message.id,
-        content: message.content,
-        date: getTimestampFromMongoObject(message),
-        authorId: message.authorId,
-      }));
-
-      return res.status(200).json({
-        conversationId: conversation.id,
-        receiver: conversation.users[0],
-        messages: formatedMessages,
-        pagination: {
-          page,
-          pageSize,
-          totalMessages,
-          totalPages,
-        },
-      });
+      return res.status(200).json({ team });
     } catch (error) {
       return next({
         status: 500,
@@ -186,18 +107,110 @@ export default {
   },
 
   // Modifier une équipe (id fourni)
-  // /api/me/teams/:team-id
+  // PATCH /api/me/teams/:team-id
+  updateTeam: async (req, res, next) => {
+    const { user } = res.locals;
+    const teamId = parseInt(req.params.id, 10);
+    const { teamName, teamColor, teamProfilePictureUrl } = req.body;
+
+    try {
+      const updatedTeam = await postgresClient.team.update({
+        where: {
+          id: teamId,
+          users: { some: { id: user.id } },
+        },
+        data: {
+          name: teamName,
+          profilePictureUrl: teamProfilePictureUrl,
+          color: teamColor,
+          ownerId: user.id,
+        },
+      });
+      console.log(updatedTeam);
+      return res.status(201).json(updatedTeam);
+    } catch (error) {
+      return next({
+        status: 400,
+        message: 'Bad request',
+        error,
+      });
+    }
+  },
+
+  // Liste des utilisateurs de notre équipe. (id fourni)
+  // GET /api/me/teams/:team-id/users
+  getTeammates: async (req, res, next) => {
+    const teamId = parseInt(req.params.id, 10);
+
+    try {
+      const teammates = await postgresClient.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          firstname: true,
+          lastname: true,
+          rppsCode: true,
+          profilePictureUrl: true,
+        },
+        where: { teams: { some: { id: teamId } } },
+      });
+      console.log('Teammates: ', teammates);
+      return res.json(teammates);
+    } catch (error) {
+      return next({
+        status: 500,
+        message: 'Internal Server Error',
+        error,
+      });
+    }
+  },
+
+  // Ajoute un utilisateur à notre équipe.
+  // POST /api/me/teams/:team-id/users/:user-id
+  addTeammate: async (req, res, next) => {
+    let { teamId, userId } = req.params;
+    teamId = parseInt(teamId, 10);
+    userId = parseInt(userId, 10);
+    // console.log('teamId : ', teamId);
+    // console.log('userId : ', userId);
+    try {
+      const updatedTeam = await postgresClient.team.update({
+        where: { id: teamId },
+        data: { users: { connect: { id: userId } } },
+      });
+      const result = { teamId, userId, updatedTeam };
+      console.log('user added: ', result);
+      return res.json(updatedTeam);
+    } catch (error) {
+      return next({
+        status: 400,
+        message: 'Bad request',
+        error,
+      });
+    }
+  },
+
+  // Enlève un utilisateur à notre équipe.
+  // DELETE /api/me/teams/:team-id/users/:user-id
+  removeTeammate: async (req, res, next) => {
+    let { teamId, userId } = req.params;
+    teamId = parseInt(teamId, 10);
+    userId = parseInt(userId, 10);
+    try {
+      const updatedTeam = await postgresClient.team.update({
+        where: { id: teamId },
+        data: { users: { disconnect: { id: userId } } },
+      });
+      const result = { teamId, userId, updatedTeam };
+      console.log('user added: ', result);
+      return res.json(updatedTeam);
+    } catch (error) {
+      return next({
+        status: 400,
+        message: 'Bad request',
+        error,
+      });
+    }
+  },
 
 };
-
-// trouver le dernier message de la conv (lastMessage)
-// const lastMessage = await mongoClient.message.findFirst({
-//   where: {
-//     teamId: teamsWithTeammates[i].id,
-//   },
-//   orderBy: {
-//     id: 'desc',
-//   },
-// });
-
-// trouver le nombre de message non lu (unreadMessageCount)

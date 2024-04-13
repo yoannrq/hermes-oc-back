@@ -35,6 +35,10 @@ const router = express.Router();
 
 router.get('/', loginRequired, teamController.getTeams);
 router.post('/', loginRequired, teamController.newTeam);
-router.get('/:id', loginRequired, teamController.getOneTeamWithMessages);
+router.get('/:id', loginRequired, teamController.getOneTeam);
+router.patch('/:id', loginRequired, teamController.updateTeam);
+router.get('/:id/users', loginRequired, teamController.getTeammates);
+router.post('/:teamId/users/:userId', loginRequired, teamController.addTeammate);
+router.delete('/:teamId/users/:userId', loginRequired, teamController.removeTeammate);
 
 export default router;
