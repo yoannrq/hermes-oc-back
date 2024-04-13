@@ -1,13 +1,14 @@
 import postgresClient from '../models/postgresClient.js';
 import mongoClient from '../models/mongoClient.js';
-import getTimestampFromMongoObject from '../utils/formatingFunctions/getTimestampFromMongoObject.js';
+
+import roomService from '../services/rooms/roomService.js';
 
 export default {
-  getConversations: async (req, res, next) => {
+  async getConversations(req, res, next) {
     const { user } = res.locals;
 
     try {
-      const userConversations = await postgresClient.conversation.findMany({
+      const conversations = await postgresClient.conversation.findMany({
         where: {
           users: {
             some: {
@@ -23,6 +24,7 @@ export default {
               firstname: true,
               lastname: true,
               profilePictureUrl: true,
+              rppsCode: true,
             },
             where: {
               id: {
@@ -33,79 +35,30 @@ export default {
         },
       });
 
-      const formatedUserConversations = userConversations.map((conversation) => ({
-        conversationid: conversation.id,
-        receiver: conversation.users[0],
-      }));
-
-      // Parcours chaque conversation pour enrichir les données avec le dernier message et le nombre de messages non lus
-      const conversationsWithMessages = await Promise.all(
-        formatedUserConversations.map(async (conversation) => {
-          // Récupère le dernier message de la conversation courante
-          const lastMessage = await mongoClient.message.findMany({
-            where: {
-              conversationId: conversation.conversationid,
-            },
-            orderBy: {
-              id: 'desc', // Tri par ordre décroissant pour obtenir le dernier message
-            },
-            take: 1, // Prend seulement le premier résultat qui est le dernier message
-          });
-
-          // Recherche le dernier message lu par l'utilisateur dans cette conversation
-          const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
-            where: {
-              conversationId: conversation.conversationid,
-              readerId: user.id, // Filtre par ID de l'utilisateur pour trouver son dernier message lu
-            },
-          });
-
-          // Initialise le compteur de messages non lus
-          let unreadMessagesCount = 0;
-          if (lastMessageRead) {
-            // Si un dernier message lu est trouvé, compte les messages non lus depuis ce dernier message
-            const lastReadMessageId = lastMessageRead.messageId;
-
-            unreadMessagesCount = await mongoClient.message.count({
-              where: {
-                conversationId: conversation.conversationid,
-                id: { gt: lastReadMessageId }, // Selectionne les messages ayant un ID supérieur au dernier message lu
-              },
-            });
-          } else {
-            // Si aucun message n'a été lu, compte tous les messages comme non lus dans cette conversation
-            unreadMessagesCount = await mongoClient.message.count({
-              where: {
-                conversationId: conversation.conversationid,
-              },
-            });
-          }
-
-          // Récupère la date du dernier message pour l'afficher dans la conversation
-          const lastMessageDate = lastMessage ? getTimestampFromMongoObject(lastMessage) : null;
-
-          if (lastMessage.deleted) {
-            lastMessage.content = 'This message has been deleted';
-          }
-
-          // Compte le nombre total de messages dans la conversation
-          const totalMessages = await mongoClient.message.count({
-            where: {
-              conversationId: conversation.conversationid,
-            },
-          });
-
-          // Retourne la conversation enrichie avec le dernier message, le nombre de messages non lus et le nombre total de messages
-          return {
-            ...conversation,
-            lastMessage: { content: lastMessage.content, date: lastMessageDate }, // Récupère le content du message et la date
-            unreadMessagesCount, // Ajoute le nombre de messages non lus à l'objet de la conversation
-            totalMessages, // Ajoute le nombre total de messages à l'objet de la conversation
-          };
+      const roomsInfoById = {};
+      await Promise.all(
+        conversations.map(async (conversation) => {
+          const roomInfo = await roomService.getRoomInfo('conversation', user.id, conversation.id);
+          roomsInfoById[conversation.id] = roomInfo;
         }),
       );
 
-      return res.status(200).json(conversationsWithMessages);
+      return res.json(
+        conversations.map((conversation) => {
+          const roomInfo = roomsInfoById[conversation.id];
+          const formatedConversations = {
+            conversationid: conversation.id,
+            receiver: conversation.users[0],
+            ...roomInfo,
+          };
+
+          if (formatedConversations?.lastMessage?.deleted) {
+            formatedConversations.lastMessage.content = 'This message has been deleted';
+          }
+
+          return formatedConversations;
+        }),
+      );
     } catch (err) {
       return next({
         status: 500,

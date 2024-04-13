@@ -1,7 +1,7 @@
 import postgresClient from '../models/postgresClient.js';
 import mongoClient from '../models/mongoClient.js';
 import getTimestampFromMongoObject from '../utils/formatingFunctions/getTimestampFromMongoObject.js';
-import canAccessRoom from '../utils/canAccessRoom.js';
+import roomService from '../services/rooms/roomService.js';
 import getObjectIdFromTimestamp from '../utils/formatingFunctions/getObjectIdFromTimestamp.js';
 
 export default {
@@ -9,9 +9,7 @@ export default {
     const { user } = res.locals;
 
     // TODO : use { roomType, roomId, content }
-    const {
-      conversationId, channelId, teamId, content,
-    } = req.body;
+    const { conversationId, channelId, teamId, content } = req.body;
 
     if (!content) {
       return res.status(400).json({ message: 'Content is required' });
@@ -46,11 +44,9 @@ export default {
             AND: [
               { id: patientId.patientId },
               {
-                users:
-              {
-                some:
-                { email: user.email },
-              },
+                users: {
+                  some: { email: user.email },
+                },
               },
             ],
           },
@@ -69,11 +65,9 @@ export default {
             AND: [
               { id: entryId },
               {
-                users:
-              {
-                some:
-                { email: user.email },
-              },
+                users: {
+                  some: { email: user.email },
+                },
               },
             ],
           },
@@ -101,10 +95,7 @@ export default {
       // Mise à jour du dernier message lu par l'utilisateur
       const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
         where: {
-          AND: [
-            { readerId: parseInt(user.id, 10) },
-            { [entryType]: entryId },
-          ],
+          AND: [{ readerId: parseInt(user.id, 10) }, { [entryType]: entryId }],
         },
       });
 
@@ -141,10 +132,7 @@ export default {
     try {
       const message = await mongoClient.message.findFirst({
         where: {
-          AND: [
-            { id: messageId },
-            { authorId: user.id },
-          ],
+          AND: [{ id: messageId }, { authorId: user.id }],
         },
       });
 
@@ -174,10 +162,7 @@ export default {
     try {
       const message = await mongoClient.message.findFirst({
         where: {
-          AND: [
-            { id: messageId },
-            { authorId: user.id },
-          ],
+          AND: [{ id: messageId }, { authorId: user.id }],
         },
       });
 
@@ -219,7 +204,7 @@ export default {
 
     try {
       // Vérification si l'utilisateur fait partie de la room
-      const canAccesRessource = await canAccessRoom(user.id, roomType, roomId);
+      const canAccesRessource = await roomService.canAccessRoom(roomType, user.id, roomId);
 
       if (!canAccesRessource) {
         return res.status(403).json({ message: 'You do not have access to this resource' });
@@ -241,10 +226,7 @@ export default {
       // Récupération des messages, filtrés par roomId et par ObjectId inférieur à celui calculé
       const messages = await mongoClient.message.findMany({
         where: {
-          AND: [
-            { [rowSelector]: roomId },
-            { id: { lt: originObjectId } },
-          ],
+          AND: [{ [rowSelector]: roomId }, { id: { lt: originObjectId } }],
         },
         orderBy: { id: 'desc' }, // order desc pour la pagination
         skip: offset,
