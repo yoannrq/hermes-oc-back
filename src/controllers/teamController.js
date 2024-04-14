@@ -202,7 +202,7 @@ export default {
         data: { users: { disconnect: { id: userId } } },
       });
       const result = { teamId, userId, updatedTeam };
-      console.log('user added: ', result);
+      console.log('user removed: ', result);
       return res.json(updatedTeam);
     } catch (error) {
       return next({
