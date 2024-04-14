@@ -1,17 +1,11 @@
 import mongoClient from '../../models/mongoClient.js';
 import postgresClient from '../../models/postgresClient.js';
-import pgClient from '../../models/postgresClient.js';
-
 import permissions from './permissions.js';
 
 /**
  * Check if the permission arguments are valid throw an error if not.
  * */
-async function checkPermissionArguments({
-  tableName,
-  permissionName,
-  recordId,
-}) {
+async function checkPermissionArguments({ tableName, permissionName, recordId }) {
   if (!tableName) {
     throw new Error('A tableName is required to set a permission.');
   }
@@ -20,16 +14,12 @@ async function checkPermissionArguments({
   }
 
   if (!Object.keys(permissions).includes(tableName)) {
-    throw new Error(
-      `TableName '${tableName}' not found in table names : \n[${Object.keys(permissions).map((p) => '\n\t' + p)}\n]`,
-    );
+    throw new Error(`TableName '${tableName}' not found in table names : \n[${Object.keys(permissions).map((p) => '\n\t' + p)}\n]`);
   }
 
   if (recordId) {
     // Permission scoped to a record
-    const recordPermissions = Object.values(permissions[tableName].one).map(
-      (pFunc) => pFunc().permissionName,
-    );
+    const recordPermissions = Object.values(permissions[tableName].one).map((pFunc) => pFunc().permissionName);
 
     if (!recordPermissions.includes(permissionName)) {
       throw new Error(
@@ -38,9 +28,7 @@ async function checkPermissionArguments({
     }
   } else {
     // Permission scoped to the table
-    const tablePermissions = Object.values(permissions[tableName].all).map(
-      (p) => p.permissionName,
-    );
+    const tablePermissions = Object.values(permissions[tableName].all).map((p) => p.permissionName);
 
     if (!tablePermissions.includes(permissionName)) {
       throw new Error(
@@ -54,7 +42,7 @@ const permissionService = {
   permissions,
 
   async createRole({ name }) {
-    return pgClient.role.upsert({
+    return postgresClient.role.upsert({
       where: { name },
       create: { name },
       update: {},
@@ -62,7 +50,7 @@ const permissionService = {
   },
 
   async findRoleByName({ name }) {
-    return pgClient.role.findUnique({
+    return postgresClient.role.findUnique({
       where: {
         name,
       },
@@ -70,7 +58,7 @@ const permissionService = {
   },
 
   async findRole({ id }) {
-    return pgClient.role.findUnique({
+    return postgresClient.role.findUnique({
       where: {
         id,
       },
@@ -79,7 +67,7 @@ const permissionService = {
 
   async deleteRoleByName({ name }) {
     try {
-      const deletedRole = await pgClient.role.delete({
+      const deletedRole = await postgresClient.role.delete({
         where: {
           name,
         },
@@ -99,7 +87,7 @@ const permissionService = {
 
   async deleteRole({ id }) {
     try {
-      const deletedRole = await pgClient.role.delete({
+      const deletedRole = await postgresClient.role.delete({
         where: {
           id,
         },
@@ -202,7 +190,7 @@ const permissionService = {
   },
 
   async addRoleToUser(userId, roleId) {
-    return pgClient.user.update({
+    return postgresClient.user.update({
       where: {
         id: userId,
       },
@@ -220,7 +208,7 @@ const permissionService = {
   },
 
   async addRoleToUserByRoleName(userId, roleName) {
-    return pgClient.user.update({
+    return postgresClient.user.update({
       where: {
         id: userId,
       },
@@ -239,7 +227,7 @@ const permissionService = {
   },
 
   async removeRoleFromUser(userId, roleId) {
-    return pgClient.user.update({
+    return postgresClient.user.update({
       where: {
         id: userId,
       },
@@ -257,7 +245,7 @@ const permissionService = {
   },
 
   async removeRoleFromUserByRoleName(userId, roleName) {
-    return pgClient.user.update({
+    return postgresClient.user.update({
       where: {
         id: userId,
       },
@@ -312,7 +300,7 @@ const permissionService = {
   },
 
   async renameRole({ roleId, name }) {
-    return pgClient.role.update({
+    return postgresClient.role.update({
       where: { id: roleId },
       data: { name },
     });

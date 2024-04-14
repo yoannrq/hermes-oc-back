@@ -22,12 +22,15 @@ const router = express.Router();
  *               content:
  *                 type: string
  *                 description: The content of the message.
- *               conversationId:
- *                 type: integer
- *                 description: The ID of the conversation to update the last message read, mutually exclusive with channelId and teamId.
- *               channelId:
- *                 type: integer
- *                 description: The ID of the channel to update the last message read, mutually exclusive with conversationId and teamId.
+ *               roomType:
+ *                 type: string
+ *                 enum: [team, conversation, channel]
+ *                 description: The type of room to send the message
+ *               roomId:
+ *                 required: true
+ *                 schema:
+ *                   type: integer
+ *                 description: The ID of room to send the message
  *               teamId:
  *                 type: integer
  *                 description: The ID of the team to update the last message read, mutually exclusive with conversationId and channelId.
@@ -125,7 +128,7 @@ router.delete('/:messageId', messageController.deleteMessage);
 
 /**
  * @swagger
- * /api/me/{roomType(team|conversation|channel)}/{roomId}:
+ * /api/me/messages/{roomType(team|conversation|channel)}/{roomId}:
  *   get:
  *     summary: Retrieve messages from a specific room based on room type and room ID, with pagination
  *     tags:
