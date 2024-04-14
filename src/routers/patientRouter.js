@@ -79,4 +79,6 @@ const router = express.Router();
  */
 router.get('/', patientController.getPatients);
 
+// router.post('/', patientController.createPatient);
+
 export default router;

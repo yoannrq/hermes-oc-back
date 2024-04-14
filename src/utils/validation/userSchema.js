@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const userSchema = z.object({
+export default z.object({
   email: z
     .string({
       required_error: {
@@ -106,5 +106,3 @@ const userSchema = z.object({
   profilePictureUrl: z
     .string().optional(),
 }).strict();
-
-export default userSchema;

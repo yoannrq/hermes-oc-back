@@ -2,7 +2,7 @@ import postgresClient from '../models/postgresClient.js';
 import mongoClient from '../models/mongoClient.js';
 
 export default {
-  getPatients: async (req, res) => {
+  async getPatients(req, res) {
     const { user } = res.locals;
 
     const patientsWithChannels = await postgresClient.patient.findMany({
@@ -22,6 +22,7 @@ export default {
       },
     });
 
+    // TODO Utilisation du service lastmessage de Jerome
     // Utilisation de Promise.all pour exécuter simultanément plusieurs requêtes asynchrones
     const patientsWithLastMessage = await Promise.all(
       patientsWithChannels.map(async (patient) => {

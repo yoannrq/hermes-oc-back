@@ -74,20 +74,29 @@ export default {
     try {
       const { email, password } = req.body;
 
+      const { success } = userSchema.partial().safeParse({ email });
+
+      const errorMessage = {
+        status: 401,
+        message: 'Invalid email or password.',
+      };
+      if (!success) {
+        // erreur de validation de schéma zod !
+        return next(errorMessage);
+      }
+
       const user = await postgresClient.user.findUnique({
         where: { email },
-        include: {
-          roles: true,
-        },
       });
+
+      if (user === null) {
+        return next(errorMessage);
+      }
 
       const passwordMatch = await bcrypt.compare(password, user.password);
 
-      if (!passwordMatch || !user) {
-        return next({
-          status: 401,
-          message: 'Invalid email or password.',
-        });
+      if (!passwordMatch) {
+        return next(errorMessage);
       }
 
       // Générer un token JWT
