@@ -1,7 +1,7 @@
 import messageService from '../services/message/messageService.js';
 
 export default {
-  createMessage: async (req, res, next) => {
+  async createMessage(req, res, next) {
     const { user } = res.locals;
 
     // Todo: check user input with zod
@@ -45,7 +45,7 @@ export default {
     }
   },
 
-  updateMessage: async (req, res, next) => {
+  async updateMessage(req, res, next) {
     const { user } = res.locals;
     const { content } = req.body;
     const { messageId } = req.params;
@@ -71,7 +71,7 @@ export default {
     }
   },
 
-  deleteMessage: async (req, res, next) => {
+  async deleteMessage(req, res, next) {
     const { messageId } = req.params;
     const { user } = res.locals;
 
@@ -95,7 +95,7 @@ export default {
     }
   },
 
-  getOneRoomWithMessages: async (req, res, next) => {
+  async getOneRoomWithMessages(req, res, next) {
     const { user } = res.locals;
 
     const { roomType } = req.params;

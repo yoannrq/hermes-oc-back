@@ -72,7 +72,7 @@ export default {
     }
   },
 
-  newConversation: async (req, res, next) => {
+  async newConversation(req, res, next) {
     const { user } = res.locals;
     const { receiverId } = req.body;
 

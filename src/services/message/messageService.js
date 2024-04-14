@@ -22,7 +22,7 @@ const roomService = {
   /**
    * Get messages from a room with pagination.
    *
-   * @param {string} roomType The type of the room (team, conversation, channel)
+   * @param {string} roomType The type of the room
    * @param {number} roomId The ID of the room to get the messages from
    * @param {number} page The page number to get
    * @param {number} pageSize The number of messages per page
@@ -86,7 +86,7 @@ const roomService = {
   /**
    * Send a message to a room, this function don't check if the user can access the room
    *
-   * @param {string} roomType The type of the room (team, conversation, channel)
+   * @param {string} roomType The type of the room
    * @param {number} authorId The ID of the user sending the message
    * @param {number} roomId The ID of the room to send the message to
    * @param {string} content The content of the message
@@ -160,6 +160,14 @@ const roomService = {
     return deletedMessage;
   },
 
+  /**
+   * Update the last message read by a user in a room
+   *
+   * @param {string} roomType The type of the room
+   * @param {number} roomId The ID of the room
+   * @param {number} userId The ID of the user reading the message
+   * @param {number} messageId The ID of the last message read
+   * */
   async updateLastMessageRead({ roomType, roomId, userId, messageId }) {
     this.checkInvalidRoomType(roomType);
     const roomIdField = `${roomType}Id`;
@@ -187,11 +195,21 @@ const roomService = {
     });
   },
 
+  /**
+   * Return a boolean indicating if a user can access a room
+   * */
   async canAccessRoom({ roomType, roomId, userId }) {
     this.checkInvalidRoomType(roomType);
     return this[roomType].canAccessRoom({ userId, roomId });
   },
 
+  /**
+   * Get the information of a room
+   *
+   * @param {string} roomType The type of the room
+   * @param {number} roomId The ID of the room
+   * @param {number} userId The ID of the user
+   * */
   async getRoomInfo({ roomType, roomId, userId }) {
     this.checkInvalidRoomType(roomType);
 

@@ -13,7 +13,7 @@ const ONE_MINUTE = ONE_SECOND * 60;
 const ONE_HOUR = ONE_MINUTE * 60;
 
 export default {
-  signup: async (req, res, next) => {
+  async signup(req, res, next) {
     try {
       // Validation des données avec zod
       const { success, data, error } = userSchema.safeParse(req.body);
@@ -27,9 +27,7 @@ export default {
         });
       }
 
-      const {
-        email, firstname, lastname, password, rppsCode,
-      } = data;
+      const { email, firstname, lastname, password, rppsCode } = data;
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -70,7 +68,7 @@ export default {
     }
   },
 
-  login: async (req, res, next) => {
+  async login(req, res, next) {
     try {
       const { email, password } = req.body;
 
@@ -112,7 +110,7 @@ export default {
     }
   },
 
-  logout: async (req, res, next) => {
+  async logout(req, res, next) {
     try {
       // Effacer le token JWT dans les cookies
       res.cookie('Authorization', '');
