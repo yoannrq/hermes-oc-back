@@ -1,4 +1,5 @@
 import postgresClient from '../models/postgresClient.js';
+import messageService from '../services/message/messageService.js';
 
 export default {
 
@@ -15,29 +16,34 @@ export default {
           color: true,
           profilePictureUrl: true,
         },
-        where: { users: { some: { id: user.id } } },
+        where: {
+          users: {
+            some: { id: user.id },
+          },
+        },
       });
-      console.log('teams: ', teams);
-      // on veut fournir le dernier message de chaque team
-      // Commencons d'abord par récupérer le dernier message pour une team
-      // const lastMessage = await mongoClient.message.findFirst({
-      //   where: {
-      //     teamId: teamsWithTeammates.id,
-      //   },
-      //   orderBy: {
-      //     id: 'desc', // Tri par ordre décroissant pour obtenir le dernier message
-      //   },
-      // });
 
-      // // maintenant faisons en sorte de le récupérer pour toutes les teams
-      // const lastMessages = await mongoClient.message.findMany({
+      const roomsInfoById = {};
+      await Promise.all(
+        teams.map(async (team) => {
+          const roomInfo = await messageService.getRoomInfo({
+            roomType: 'team',
+            roomId: team.id,
+            userId: user.id,
+          });
+          roomsInfoById[team.id] = roomInfo;
+        }),
+      );
+      return res.json(
+        teams.map((team) => {
+          const roomInfo = roomsInfoById[team.id];
 
-      // });
-
-      // console.log('lastmessage: ', lastMessage);
-      // // on veut aussi fournir le nombre de message non lus pour chaque team
-
-      return res.json(teams);
+          return {
+            ...team,
+            ...roomInfo,
+          };
+        }),
+      );
     } catch (error) {
       return next({
         status: 500,
@@ -95,7 +101,6 @@ export default {
         });
       }
       console.log('team: ', team);
-
       return res.status(200).json({ team });
     } catch (error) {
       return next({
