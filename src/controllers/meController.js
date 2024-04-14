@@ -5,7 +5,7 @@ import formatingName from '../utils/formatingFunctions/formatingName.js';
 import mongoClient from '../models/mongoClient.js';
 
 export default {
-  getMe: async (req, res) => {
+  async getMe(req, res) {
     // Reconstitution de l'objet user pour formater les données roles
     const user = {
       ...res.locals.user,
@@ -15,7 +15,7 @@ export default {
     return res.status(200).json(user);
   },
 
-  updateMe: async (req, res, next) => {
+  async updateMe(req, res, next) {
     // Validation des données avec zod
     const { success, data, error } = userSchema.partial().safeParse(req.body);
 
@@ -64,9 +64,7 @@ export default {
 
   updateLastMessageRead: async (req, res, next) => {
     const { user } = res.locals;
-    const {
-      conversationId, channelId, teamId, messageId,
-    } = req.body;
+    const { conversationId, channelId, teamId, messageId } = req.body;
 
     if (!messageId) {
       return res.status(200).json({ message: 'No messages' });
@@ -101,10 +99,7 @@ export default {
     try {
       const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
         where: {
-          AND: [
-            { readerId: parseInt(user.id, 10) },
-            { [entryType]: entryId },
-          ],
+          AND: [{ readerId: parseInt(user.id, 10) }, { [entryType]: entryId }],
         },
       });
 

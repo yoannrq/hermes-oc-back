@@ -1,0 +1,240 @@
+import postgresClient from '../../models/postgresClient.js';
+import mongoClient from '../../models/mongoClient.js';
+
+import teamService from './messageServices/messageTeamService.js';
+import conversationService from './messageServices/messageConversationService.js';
+import channelService from './messageServices/messageChannelService.js';
+
+import getObjectIdFromTimestamp from '../../utils/formatingFunctions/getObjectIdFromTimestamp.js';
+import getDateFromMongoObject from '../../utils/formatingFunctions/getDateFromMongoObject.js';
+
+const roomService = {
+  team: teamService,
+  conversation: conversationService,
+  channel: channelService,
+
+  checkInvalidRoomType(roomType) {
+    if (!this[roomType]) {
+      throw new Error(`Invalid room type provided: ${roomType}`);
+    }
+  },
+
+  /**
+   * Get messages from a room with pagination.
+   *
+   * @param {string} roomType The type of the room (team, conversation, channel)
+   * @param {number} roomId The ID of the room to get the messages from
+   * @param {number} page The page number to get
+   * @param {number} pageSize The number of messages per page
+   * @param {number} originTimestamp The timestamp to get messages before
+   *
+   * */
+  async getMessagesWithPagination({ roomType, roomId, page = 1, pageSize = 50, originTimestamp = Date.now() }) {
+    this.checkInvalidRoomType(roomType);
+    const roomIdField = `${roomType}Id`;
+
+    const totalMessages = await mongoClient.message.count({
+      where: {
+        [roomIdField]: roomId,
+      },
+    });
+
+    const totalPages = Math.ceil(totalMessages / pageSize);
+    const offset = (page - 1) * pageSize;
+    const originObjectId = getObjectIdFromTimestamp(originTimestamp);
+
+    let messages = await mongoClient.message.findMany({
+      where: {
+        [roomIdField]: roomId,
+        id: {
+          lt: originObjectId,
+        },
+      },
+      // Pagination requires descending order
+      orderBy: { id: 'desc' },
+      skip: offset,
+      take: pageSize,
+    });
+
+    if (messages?.length) {
+      // Reverse the order to have the messages in ascending order
+      messages.reverse();
+
+      // Format messages
+      messages = messages.map((message) => ({
+        id: message.id,
+        [roomIdField]: roomId,
+        authorId: message.authorId,
+        content: message.deleted ? 'This message has been deleted' : message.content,
+        date: getDateFromMongoObject(message.id),
+        deleted: message.deleted,
+      }));
+    }
+
+    return {
+      messages,
+      pagination: {
+        page,
+        pageSize,
+        totalPages,
+        totalMessages,
+        originTimestamp,
+      },
+    };
+  },
+
+  /**
+   * Send a message to a room, this function don't check if the user can access the room
+   *
+   * @param {string} roomType The type of the room (team, conversation, channel)
+   * @param {number} authorId The ID of the user sending the message
+   * @param {number} roomId The ID of the room to send the message to
+   * @param {string} content The content of the message
+   * @returns {Promise<object>} The created message
+   * */
+  async createMessage({ roomType, roomId, authorId, content }) {
+    this.checkInvalidRoomType(roomType);
+    const roomIdField = `${roomType}Id`;
+
+    return mongoClient.message.create({
+      data: {
+        [roomIdField]: roomId,
+        authorId,
+        content,
+        deleted: false,
+      },
+    });
+  },
+
+  /**
+   * Update a message from a room, this function don't check if the user can access the room
+   *
+   * @param {number} messageId The ID of the message to update
+   * @param {number} authorId The ID of the author of the message
+   * @param {string} content The new content of the message
+   * */
+  async updateMessage({ messageId, authorId, content }) {
+    const message = await mongoClient.message.findFirst({
+      where: {
+        id: messageId,
+        authorId,
+      },
+    });
+
+    if (!message) {
+      return null;
+    }
+
+    return mongoClient.message.update({
+      where: { id: message.id },
+      data: { content },
+    });
+  },
+
+  /**
+   * Delete a message from a room, this function don't check if the user can access the room
+   *
+   * @param {number} messageId The ID of the message to delete
+   * @param {number} authorId The ID of the author of the message
+   * @returns {Promise<deletedMessage>|null}
+   * */
+  async deleteMessage({ messageId, authorId }) {
+    const message = await mongoClient.message.findFirst({
+      where: {
+        id: messageId,
+        authorId,
+      },
+    });
+
+    if (!message) {
+      return null;
+    }
+
+    const deletedMessage = await mongoClient.message.update({
+      where: { id: messageId },
+      data: { deleted: true },
+    });
+
+    deletedMessage.content = 'This message has been deleted';
+
+    return deletedMessage;
+  },
+
+  async updateLastMessageRead({ roomType, roomId, userId, messageId }) {
+    this.checkInvalidRoomType(roomType);
+    const roomIdField = `${roomType}Id`;
+
+    const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
+      where: {
+        [roomIdField]: roomId,
+        readerId: userId,
+      },
+    });
+
+    if (lastMessageRead) {
+      return mongoClient.lastMessageRead.update({
+        where: { id: lastMessageRead.id },
+        data: { messageId },
+      });
+    }
+
+    return mongoClient.lastMessageRead.create({
+      data: {
+        [roomIdField]: roomId,
+        readerId: userId,
+        messageId,
+      },
+    });
+  },
+
+  async canAccessRoom({ roomType, roomId, userId }) {
+    this.checkInvalidRoomType(roomType);
+    return this[roomType].canAccessRoom({ userId, roomId });
+  },
+
+  async getRoomInfo({ roomType, roomId, userId }) {
+    this.checkInvalidRoomType(roomType);
+
+    const roomIdField = `${roomType}Id`;
+
+    const lastMessage = await mongoClient.message.findFirst({
+      where: { [roomIdField]: roomId },
+      select: {
+        id: true,
+        [roomIdField]: true,
+        content: true,
+        authorId: true,
+      },
+      orderBy: { id: 'desc' },
+    });
+
+    const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
+      where: {
+        [roomIdField]: roomId,
+        readerId: userId,
+      },
+    });
+
+    let unreadMessagesCount = 0;
+    if (lastMessageRead) {
+      unreadMessagesCount = await mongoClient.message.count({
+        where: {
+          id: { gt: lastMessageRead.id },
+          [roomIdField]: roomId,
+        },
+      });
+    }
+
+    const totalMessages = await mongoClient.message.count({
+      where: { [roomIdField]: roomId },
+    });
+
+    return {
+      lastMessage,
+      unreadMessagesCount,
+      totalMessages,
+    };
+  },
+};
+
+export default roomService;

@@ -1,7 +1,6 @@
 import postgresClient from '../models/postgresClient.js';
-import mongoClient from '../models/mongoClient.js';
 
-import roomService from '../services/rooms/roomService.js';
+import messageService from '../services/message/messageService.js';
 
 export default {
   async getConversations(req, res, next) {
@@ -38,7 +37,11 @@ export default {
       const roomsInfoById = {};
       await Promise.all(
         conversations.map(async (conversation) => {
-          const roomInfo = await roomService.getRoomInfo('conversation', user.id, conversation.id);
+          const roomInfo = await messageService.getRoomInfo({
+            roomType: 'conversation',
+            roomId: conversation.id,
+            userId: user.id,
+          });
           roomsInfoById[conversation.id] = roomInfo;
         }),
       );
@@ -46,6 +49,7 @@ export default {
       return res.json(
         conversations.map((conversation) => {
           const roomInfo = roomsInfoById[conversation.id];
+
           const formatedConversations = {
             conversationid: conversation.id,
             receiver: conversation.users[0],
