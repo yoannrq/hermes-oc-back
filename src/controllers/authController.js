@@ -15,7 +15,6 @@ const ONE_HOUR = ONE_MINUTE * 60;
 export default {
   async signup(req, res, next) {
     try {
-      // Validation des données avec zod
       const { success, data, error } = userSchema.safeParse(req.body);
 
       if (!success) {
@@ -70,6 +69,7 @@ export default {
 
   async login(req, res, next) {
     try {
+      // Todo: Check user input with zod
       const { email, password } = req.body;
 
       const user = await postgresClient.user.findUnique({

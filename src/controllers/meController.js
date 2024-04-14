@@ -16,7 +16,6 @@ export default {
   },
 
   async updateMe(req, res, next) {
-    // Validation des données avec zod
     const { success, data, error } = userSchema.partial().safeParse(req.body);
 
     if (!success) {
@@ -64,6 +63,8 @@ export default {
 
   updateLastMessageRead: async (req, res, next) => {
     const { user } = res.locals;
+
+    // Todo: Check user input with zod
     const { conversationId, channelId, teamId, messageId } = req.body;
 
     if (!messageId) {

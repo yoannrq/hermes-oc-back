@@ -74,6 +74,8 @@ export default {
 
   async newConversation(req, res, next) {
     const { user } = res.locals;
+
+    // Todo: Check user input with zod
     const { receiverId } = req.body;
 
     try {

@@ -47,6 +47,7 @@ export default {
 
   async updateMessage(req, res, next) {
     const { user } = res.locals;
+    // Todo: Check user input with zod
     const { content } = req.body;
     const { messageId } = req.params;
 
