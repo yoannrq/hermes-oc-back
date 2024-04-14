@@ -26,7 +26,9 @@ export default {
         });
       }
 
-      const { email, firstname, lastname, password, rppsCode } = data;
+      const {
+        email, firstname, lastname, password, rppsCode,
+      } = data;
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
