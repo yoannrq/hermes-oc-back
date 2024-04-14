@@ -215,7 +215,7 @@ const roomService = {
 
     const roomIdField = `${roomType}Id`;
 
-    const lastMessage = await mongoClient.message.findFirst({
+    let lastMessage = await mongoClient.message.findFirst({
       where: { [roomIdField]: roomId },
       select: {
         id: true,
@@ -235,6 +235,12 @@ const roomService = {
 
     let unreadMessagesCount = 0;
     if (lastMessageRead) {
+      if (lastMessageRead.deleted) {
+        lastMessage = {
+          ...lastMessage,
+          content: 'This message has been deleted',
+        };
+      }
       unreadMessagesCount = await mongoClient.message.count({
         where: {
           id: { gt: lastMessageRead.id },

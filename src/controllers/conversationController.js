@@ -50,17 +50,11 @@ export default {
         conversations.map((conversation) => {
           const roomInfo = roomsInfoById[conversation.id];
 
-          const formatedConversations = {
+          return {
             conversationid: conversation.id,
             receiver: conversation.users[0],
             ...roomInfo,
           };
-
-          if (formatedConversations?.lastMessage?.deleted) {
-            formatedConversations.lastMessage.content = 'This message has been deleted';
-          }
-
-          return formatedConversations;
         }),
       );
     } catch (err) {
