@@ -119,37 +119,18 @@ export default {
     return res.status(201).json(newPatient);
   },
 
-  async getPatientWithChannels(req, res, next) {
+  async getChannelsFromPatientId(req, res) {
     const { user } = res.locals;
     const { patientId } = req.params;
 
-    const patient = await postgresClient.patient.findFirst({
+    const channels = await postgresClient.channel.findMany({
       where: {
-        id: parseInt(patientId, 10),
-        users: {
-          some: {
-            id: user.id,
-          },
-        },
-      },
-      include: {
-        channels: {
-          include: {
-            channelType: true,
-          },
-        },
+        patientId: parseInt(patientId, 10),
       },
     });
 
-    if (!patient) {
-      return next({
-        status: 404,
-        message: 'Patient not found or this current user is not associated with this patient.',
-      });
-    }
-
     const channelsWithLastMessage = await Promise.all(
-      patient.channels.map(async (channel) => {
+      channels.map(async (channel) => {
         const roomInfo = await messageService.getRoomInfo({
           roomType: 'channel',
           roomId: channel.id,
@@ -162,46 +143,23 @@ export default {
       }),
     );
 
-    return res.status(200).json({ ...patient, channels: channelsWithLastMessage });
+    return res.status(200).json(channelsWithLastMessage);
   },
 
-  async getPatientWithUsers(req, res, next) {
-    const { user } = res.locals;
+  async getUsersFromPatientId(req, res) {
     const { patientId } = req.params;
 
-    const patient = await postgresClient.patient.findFirst({
+    const users = await postgresClient.user.findMany({
       where: {
-        id: parseInt(patientId, 10),
-        users: {
+        patients: {
           some: {
-            id: user.id,
-          },
-        },
-      },
-      include: {
-        users: {
-          select: {
-            id: true,
-            firstname: true,
-            lastname: true,
-            email: true,
-            rppsCode: true,
-            profilePictureUrl: true,
-            createdAt: true,
-            updatedAt: true,
+            id: parseInt(patientId, 10),
           },
         },
       },
     });
 
-    if (!patient) {
-      return next({
-        status: 404,
-        message: 'Patient not found or this current user is not associated with this patient.',
-      });
-    }
-
-    return res.status(200).json(patient);
+    return res.status(200).json(users);
   },
 
   async addUserToPatient(req, res, next) {

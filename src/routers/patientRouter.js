@@ -77,14 +77,14 @@ router.post('/', patientController.createPatient);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/patientWithChannels'
+ *               $ref: '#/components/schemas/channelListWithLastMessage'
  *       '401':
  *         description: Unauthorized access.
  *       '500':
  *         description: Internal server error.
  *
  */
-router.get('/:patientId/channels', patientController.getPatientWithChannels);
+router.get('/:patientId/channels', patientController.getChannelsFromPatientId);
 
 /**
  * @swagger
@@ -107,14 +107,14 @@ router.get('/:patientId/channels', patientController.getPatientWithChannels);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/patientWithUsers'
+ *               $ref: '#/components/schemas/userList'
  *       '401':
  *         description: Unauthorized access.
  *       '500':
  *         description: Internal server error.
  *
  */
-router.get('/:patientId/users', patientController.getPatientWithUsers);
+router.get('/:patientId/users', patientController.getUsersFromPatientId);
 
 /**
  * @swagger
