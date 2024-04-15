@@ -83,6 +83,33 @@ const router = express.Router();
  */
 router.get('/', patientController.getPatients);
 
-// router.post('/', patientController.createPatient);
+/**
+ * @swagger
+ * /api/me/patients:
+ *   post:
+ *     summary: Create a new patient
+ *     tags:
+ *       - patient
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/patient'
+ *     responses:
+ *       '201':
+ *         description: Patient created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/patient'
+ *       '401':
+ *         description: Unauthorized access.
+ *       '500':
+ *         description: Internal server error.
+ */
+router.post('/', patientController.createPatient);
 
 export default router;

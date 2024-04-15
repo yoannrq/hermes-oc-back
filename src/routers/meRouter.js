@@ -31,7 +31,7 @@ router.use('/patients', patientRouter);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               $ref: '#/components/schemas/user'
  *       '401':
  *         description: Unauthorized access.
  *       '500':

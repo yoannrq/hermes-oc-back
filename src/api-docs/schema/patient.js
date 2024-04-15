@@ -27,7 +27,7 @@ export default {
       id: 2,
       firstname: 'Jane',
       lastname: 'Doe',
-      birthdate: '1990-01-01',
+      birthdate: '01/01/1900',
       social_security_number: '123456789',
       phone_number: '0601020304',
       email: 'jane@doe.com',
