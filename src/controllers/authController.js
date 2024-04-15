@@ -71,7 +71,6 @@ export default {
 
   async login(req, res, next) {
     try {
-      // Todo: Check user input with zod
       const { email, password } = req.body;
 
       const { success } = userSchema.partial().safeParse({ email });
@@ -80,8 +79,8 @@ export default {
         status: 401,
         message: 'Invalid email or password.',
       };
-      if (!success) {
-        // erreur de validation de schéma zod !
+      if (!success || !password) {
+        // erreur de validation de schéma zod ou pas de mot de passe fourni !
         return next(errorMessage);
       }
 
@@ -89,13 +88,9 @@ export default {
         where: { email },
       });
 
-      if (user === null) {
-        return next(errorMessage);
-      }
+      const checkPassword = await bcrypt.compare(password, user.password);
 
-      const passwordMatch = await bcrypt.compare(password, user.password);
-
-      if (!passwordMatch) {
+      if (!user || !checkPassword) {
         return next(errorMessage);
       }
 

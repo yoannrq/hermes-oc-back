@@ -3,6 +3,7 @@ import postgresClient from '../models/postgresClient.js';
 import userSchema from '../utils/validation/userSchema.js';
 import formatingName from '../utils/formatingFunctions/formatingName.js';
 import mongoClient from '../models/mongoClient.js';
+import lastMessageReadSchema from '../utils/validation/lastMessageReadSchema.js';
 
 export default {
   async getMe(req, res) {
@@ -64,11 +65,20 @@ export default {
   updateLastMessageRead: async (req, res, next) => {
     const { user } = res.locals;
 
-    // Todo: Check user input with zod
-    const { conversationId, channelId, teamId, messageId } = req.body;
+    const { success, error } = lastMessageReadSchema.safeParse(req.body);
 
-    if (!messageId) {
-      return res.status(200).json({ message: 'No messages' });
+    // Destruction des variables du req.body pour ne pas avoir d'erreur avec data (champs manquant)
+    const {
+      conversationId, channelId, teamId, messageId,
+    } = req.body;
+
+    if (!success) {
+      // erreur de validation de schéma zod !
+      return next({
+        status: 400,
+        message: 'Schema validation error.',
+        errors: error.errors,
+      });
     }
 
     if ((conversationId && channelId) || (conversationId && teamId) || (channelId && teamId)) {

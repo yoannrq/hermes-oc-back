@@ -1,6 +1,7 @@
 import postgresClient from '../models/postgresClient.js';
 
 import messageService from '../services/message/messageService.js';
+import receiverIdSchema from '../utils/validation/receiverIdSchema.js';
 
 export default {
   async getConversations(req, res, next) {
@@ -68,9 +69,17 @@ export default {
 
   async newConversation(req, res, next) {
     const { user } = res.locals;
+    const { success, data, error } = receiverIdSchema.safeParse(req.body);
 
-    // Todo: Check user input with zod
-    const { receiverId } = req.body;
+    if (!success) {
+      return next({
+        status: 400,
+        message: 'Schema validation error.',
+        errors: error.errors,
+      });
+    }
+
+    const receiverId = parseInt(data.receiverId, 10);
 
     try {
       const receiver = await postgresClient.user.findUnique({

@@ -31,9 +31,6 @@ const router = express.Router();
  *                 schema:
  *                   type: integer
  *                 description: The ID of room to send the message
- *               teamId:
- *                 type: integer
- *                 description: The ID of the team to update the last message read, mutually exclusive with conversationId and channelId.
  *     responses:
  *       '201':
  *         description: New message created

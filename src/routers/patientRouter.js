@@ -18,11 +18,13 @@ const router = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
+ *               type: object
+ *               additionalProperties:
  *                 type: object
  *                 properties:
  *                   id:
+ *                     type: integer
+ *                   zipCodeId:
  *                     type: integer
  *                   firstname:
  *                     type: string
@@ -45,31 +47,33 @@ const router = express.Router();
  *                   updatedAt:
  *                     type: string
  *                     format: date-time
+ *                   channels:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                         patientId:
+ *                           type: integer
+ *                         channelTypeId:
+ *                           type: integer
  *                   lastMessage:
  *                     type: object
  *                     properties:
  *                       id:
  *                         type: string
- *                       sourceMessageId:
- *                         type: string
- *                         nullable: true
- *                       content:
- *                         type: string
- *                       date:
- *                         type: string
- *                         format: date-time
- *                       deleted:
- *                         type: boolean
- *                       authorId:
- *                         type: integer
- *                       conversationId:
- *                         type: integer
- *                         nullable: true
- *                       teamId:
- *                         type: integer
- *                         nullable: true
  *                       channelId:
  *                         type: integer
+ *                       content:
+ *                         type: string
+ *                       authorId:
+ *                         type: integer
+ *                       timestamp:
+ *                         type: string
+ *                         format: date-time
+ *                   unreadMessagesCount:
+ *                     type: integer
  *       '401':
  *         description: Unauthorized
  *       '404':

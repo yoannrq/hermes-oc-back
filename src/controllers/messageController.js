@@ -1,11 +1,20 @@
 import messageService from '../services/message/messageService.js';
+import messageSchema from '../utils/validation/messageSchema.js';
 
 export default {
   async createMessage(req, res, next) {
     const { user } = res.locals;
+    const { success, data, error } = messageSchema.safeParse(req.body);
 
-    // Todo: check user input with zod
-    const { roomType, roomId, content } = req.body;
+    if (!success) {
+      return next({
+        status: 400,
+        message: 'Schema validation error.',
+        errors: error.errors,
+      });
+    }
+
+    const { content, roomId, roomType } = data;
 
     try {
       const canAccessRoom = await messageService.canAccessRoom({
@@ -47,8 +56,18 @@ export default {
 
   async updateMessage(req, res, next) {
     const { user } = res.locals;
-    // Todo: Check user input with zod
-    const { content } = req.body;
+    const { success, data, error } = messageSchema.partial().safeParse(req.body);
+
+    if (!success) {
+      return next({
+        status: 400,
+        message: 'Schema validation error.',
+        errors: error.errors,
+      });
+    }
+
+    const { content } = data;
+
     const { messageId } = req.params;
 
     try {

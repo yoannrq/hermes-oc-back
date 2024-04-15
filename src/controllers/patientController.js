@@ -16,15 +16,10 @@ export default {
         },
       },
       include: {
-        channels: {
-          select: {
-            id: true,
-          },
-        },
+        channels: true,
       },
     });
 
-    // TODO Utilisation du service lastmessage de Jerome
     const patientInfoById = {};
     await Promise.all(
       patientsWithChannels.map(async (patient) => {
