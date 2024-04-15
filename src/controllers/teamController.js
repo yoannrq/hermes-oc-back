@@ -70,7 +70,10 @@ export default {
         },
       });
       console.log(team);
-      return res.status(201).json(team);
+      return res.status(201).json({
+        created: true,
+        ...team,
+      });
     } catch (error) {
       return next({
         status: 400,
@@ -131,8 +134,10 @@ export default {
           ownerId: user.id,
         },
       });
-      console.log(updatedTeam);
-      return res.status(201).json(updatedTeam);
+      return res.status(201).json({
+        updated: true,
+        ...updatedTeam,
+      });
     } catch (error) {
       return next({
         status: 400,
@@ -159,8 +164,7 @@ export default {
         },
         where: { teams: { some: { id: teamId } } },
       });
-      console.log('Teammates: ', teammates);
-      return res.json(teammates);
+      return res.status(200).json(teammates);
     } catch (error) {
       return next({
         status: 500,
@@ -183,9 +187,11 @@ export default {
         where: { id: teamId },
         data: { users: { connect: { id: userId } } },
       });
-      const result = { teamId, userId, updatedTeam };
-      console.log('user added: ', result);
-      return res.json(updatedTeam);
+      return res.status(201).json({
+        added: true,
+        ...userId,
+        ...updatedTeam,
+      });
     } catch (error) {
       return next({
         status: 400,
@@ -208,7 +214,7 @@ export default {
       });
       const result = { teamId, userId, updatedTeam };
       console.log('user removed: ', result);
-      return res.json(updatedTeam);
+      return res.status(200).json(updatedTeam);
     } catch (error) {
       return next({
         status: 400,
