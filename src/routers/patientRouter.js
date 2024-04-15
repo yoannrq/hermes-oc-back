@@ -112,4 +112,96 @@ router.get('/', patientController.getPatients);
  */
 router.post('/', patientController.createPatient);
 
+/**
+ * @swagger
+ * /api/me/patients/{patientId}/channels:
+ *   get:
+ *     summary: Get a patient with their associated channels
+ *     tags:
+ *       - patient
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: patientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 zipCodeId:
+ *                   type: integer
+ *                 firstname:
+ *                   type: string
+ *                 lastname:
+ *                   type: string
+ *                 birthdate:
+ *                   type: string
+ *                   format: date-time
+ *                 socialSecurityNumber:
+ *                   type: string
+ *                 phoneNumber:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 address:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *                 channels:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       patientId:
+ *                         type: integer
+ *                       channelTypeId:
+ *                         type: integer
+ *                       channelType:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           name:
+ *                             type: string
+ *                           color:
+ *                             type: string
+ *                           order:
+ *                             type: integer
+ *                       lastMessage:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           channelId:
+ *                             type: integer
+ *                           content:
+ *                             type: string
+ *                           authorId:
+ *                             type: integer
+ *                       unreadMessagesCount:
+ *                         type: integer
+ *                       totalMessages:
+ *                         type: integer
+ *       '401':
+ *         description: Unauthorized access.
+ *       '500':
+ *         description: Internal server error.
+ */
+router.get('/:patientId/channels', patientController.getPatientWithChannels);
+
 export default router;

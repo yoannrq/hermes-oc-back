@@ -117,4 +117,50 @@ export default {
 
     return res.status(201).json(newPatient);
   },
+
+  async getPatientWithChannels(req, res, next) {
+    const { user } = res.locals;
+    const { patientId } = req.params;
+
+    const patient = await postgresClient.patient.findFirst({
+      where: {
+        id: parseInt(patientId, 10),
+        users: {
+          some: {
+            id: user.id,
+          },
+        },
+      },
+      include: {
+        channels: {
+          include: {
+            channelType: true,
+          },
+        },
+      },
+    });
+
+    if (!patient) {
+      return next({
+        status: 404,
+        message: 'Patient not found or this current user is not associated with this patient.',
+      });
+    }
+
+    const channelsWithLastMessage = await Promise.all(
+      patient.channels.map(async (channel) => {
+        const roomInfo = await messageService.getRoomInfo({
+          roomType: 'channel',
+          roomId: channel.id,
+          userId: user.id,
+        });
+        return {
+          ...channel,
+          ...roomInfo,
+        };
+      }),
+    );
+
+    return res.status(200).json({ ...patient, channels: channelsWithLastMessage });
+  },
 };
