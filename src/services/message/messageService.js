@@ -29,7 +29,9 @@ const roomService = {
    * @param {number} originTimestamp The timestamp to get messages before
    *
    * */
-  async getMessagesWithPagination({ roomType, roomId, page = 1, pageSize = 50, originTimestamp = Date.now() }) {
+  async getMessagesWithPagination({
+    roomType, roomId, page = 1, pageSize = 50, originTimestamp = Date.now(),
+  }) {
     this.checkInvalidRoomType(roomType);
     const roomIdField = `${roomType}Id`;
 
@@ -66,7 +68,7 @@ const roomService = {
         [roomIdField]: roomId,
         authorId: message.authorId,
         content: message.deleted ? 'This message has been deleted' : message.content,
-        date: getDateFromMongoObject(message.id),
+        date: getDateFromMongoObject(message),
         deleted: message.deleted,
       }));
     }
@@ -92,7 +94,9 @@ const roomService = {
    * @param {string} content The content of the message
    * @returns {Promise<object>} The created message
    * */
-  async createMessage({ roomType, roomId, authorId, content }) {
+  async createMessage({
+    roomType, roomId, authorId, content,
+  }) {
     this.checkInvalidRoomType(roomType);
     const roomIdField = `${roomType}Id`;
 
@@ -168,7 +172,9 @@ const roomService = {
    * @param {number} userId The ID of the user reading the message
    * @param {number} messageId The ID of the last message read
    * */
-  async updateLastMessageRead({ roomType, roomId, userId, messageId }) {
+  async updateLastMessageRead({
+    roomType, roomId, userId, messageId,
+  }) {
     this.checkInvalidRoomType(roomType);
     const roomIdField = `${roomType}Id`;
 

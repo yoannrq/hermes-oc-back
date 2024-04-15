@@ -7,79 +7,23 @@ const router = express.Router();
  * @swagger
  * /api/me/patients:
  *   get:
- *     summary: Retrieve a list of patients with their last message details
+ *     summary: Get a patient with the last message
  *     tags:
  *       - patient
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       '200':
- *         description: List of patients retrieved successfully
+ *         description: Successful response
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               additionalProperties:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   zipCodeId:
- *                     type: integer
- *                   firstname:
- *                     type: string
- *                   lastname:
- *                     type: string
- *                   birthdate:
- *                     type: string
- *                     format: date-time
- *                   socialSecurityNumber:
- *                     type: string
- *                   phoneNumber:
- *                     type: string
- *                   email:
- *                     type: string
- *                   address:
- *                     type: string
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *                   updatedAt:
- *                     type: string
- *                     format: date-time
- *                   channels:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: integer
- *                         patientId:
- *                           type: integer
- *                         channelTypeId:
- *                           type: integer
- *                   lastMessage:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                       channelId:
- *                         type: integer
- *                       content:
- *                         type: string
- *                       authorId:
- *                         type: integer
- *                       timestamp:
- *                         type: string
- *                         format: date-time
- *                   unreadMessagesCount:
- *                     type: integer
+ *               $ref: '#/components/schemas/patientsListWithLastMessage'
  *       '401':
- *         description: Unauthorized
- *       '404':
- *         description: Patients not found
+ *         description: Unauthorized access.
  *       '500':
- *         description: Internal server error
+ *         description: Internal server error.
+ *
  */
 router.get('/', patientController.getPatients);
 
@@ -133,75 +77,43 @@ router.post('/', patientController.createPatient);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 zipCodeId:
- *                   type: integer
- *                 firstname:
- *                   type: string
- *                 lastname:
- *                   type: string
- *                 birthdate:
- *                   type: string
- *                   format: date-time
- *                 socialSecurityNumber:
- *                   type: string
- *                 phoneNumber:
- *                   type: string
- *                 email:
- *                   type: string
- *                 address:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
- *                 channels:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       patientId:
- *                         type: integer
- *                       channelTypeId:
- *                         type: integer
- *                       channelType:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: integer
- *                           name:
- *                             type: string
- *                           color:
- *                             type: string
- *                           order:
- *                             type: integer
- *                       lastMessage:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                           channelId:
- *                             type: integer
- *                           content:
- *                             type: string
- *                           authorId:
- *                             type: integer
- *                       unreadMessagesCount:
- *                         type: integer
- *                       totalMessages:
- *                         type: integer
+ *               $ref: '#/components/schemas/patientWithChannels'
  *       '401':
  *         description: Unauthorized access.
  *       '500':
  *         description: Internal server error.
+ *
  */
 router.get('/:patientId/channels', patientController.getPatientWithChannels);
+
+/**
+ * @swagger
+ * /api/me/patients/{patientId}/users:
+ *   get:
+ *     summary: Get a patient with their associated users
+ *     tags:
+ *       - patient
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: patientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/patientWithUsers'
+ *       '401':
+ *         description: Unauthorized access.
+ *       '500':
+ *         description: Internal server error.
+ *
+ */
+router.get('/:patientId/users', patientController.getPatientWithUsers);
 
 export default router;

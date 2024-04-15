@@ -163,4 +163,43 @@ export default {
 
     return res.status(200).json({ ...patient, channels: channelsWithLastMessage });
   },
+
+  async getPatientWithUsers(req, res, next) {
+    const { user } = res.locals;
+    const { patientId } = req.params;
+
+    const patient = await postgresClient.patient.findFirst({
+      where: {
+        id: parseInt(patientId, 10),
+        users: {
+          some: {
+            id: user.id,
+          },
+        },
+      },
+      include: {
+        users: {
+          select: {
+            id: true,
+            firstname: true,
+            lastname: true,
+            email: true,
+            rppsCode: true,
+            profilePictureUrl: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+
+    if (!patient) {
+      return next({
+        status: 404,
+        message: 'Patient not found or this current user is not associated with this patient.',
+      });
+    }
+
+    return res.status(200).json(patient);
+  },
 };

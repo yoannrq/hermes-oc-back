@@ -20,7 +20,6 @@ const files = fs.readdirSync(path.join(__dirname, 'schema'));
 
 for (const file of files) {
   // eslint-disable-next-line no-await-in-loop
-
   const model = await import(`./schema/${file}`);
 
   schemas = { ...schemas, ...model.default };
