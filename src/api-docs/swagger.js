@@ -51,7 +51,7 @@ const options = {
 
       { name: 'team', description: 'Team management' },
 
-      { name: 'conversation', description: 'Conversation management' },
+      { name: 'private', description: 'Private management' },
 
       { name: 'setting', description: 'Settings management' },
 

@@ -116,4 +116,6 @@ router.get('/:patientId/channels', patientController.getPatientWithChannels);
  */
 router.get('/:patientId/users', patientController.getPatientWithUsers);
 
+// router.post('/:patient-id/users', patientController.addUserToPatient);
+
 export default router;

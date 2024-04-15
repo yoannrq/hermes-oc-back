@@ -4,11 +4,11 @@ import messageService from '../services/message/messageService.js';
 import receiverIdSchema from '../utils/validation/receiverIdSchema.js';
 
 export default {
-  async getConversations(req, res, next) {
+  async getPrivates(req, res, next) {
     const { user } = res.locals;
 
     try {
-      const conversations = await postgresClient.conversation.findMany({
+      const privateConversations = await postgresClient.conversation.findMany({
         where: {
           users: {
             some: {
@@ -37,23 +37,23 @@ export default {
 
       const roomsInfoById = {};
       await Promise.all(
-        conversations.map(async (conversation) => {
+        privateConversations.map(async (privateConversation) => {
           const roomInfo = await messageService.getRoomInfo({
-            roomType: 'conversation',
-            roomId: conversation.id,
+            roomType: 'private',
+            roomId: privateConversation.id,
             userId: user.id,
           });
-          roomsInfoById[conversation.id] = roomInfo;
+          roomsInfoById[privateConversation.id] = roomInfo;
         }),
       );
 
       return res.json(
-        conversations.map((conversation) => {
-          const roomInfo = roomsInfoById[conversation.id];
+        privateConversations.map((privateConversation) => {
+          const roomInfo = roomsInfoById[privateConversation.id];
 
           return {
-            conversationid: conversation.id,
-            receiver: conversation.users[0],
+            privateConversationid: privateConversation.id,
+            receiver: privateConversation.users[0],
             ...roomInfo,
           };
         }),
@@ -67,7 +67,7 @@ export default {
     }
   },
 
-  async newConversation(req, res, next) {
+  async newPrivate(req, res, next) {
     const { user } = res.locals;
     const { success, data, error } = receiverIdSchema.safeParse(req.body);
 
@@ -93,8 +93,8 @@ export default {
         });
       }
 
-      // Only one conversation between two users at a time
-      const existingConversation = await postgresClient.conversation.findFirst({
+      // Only one private between two users at a time
+      const existingPrivate = await postgresClient.conversation.findFirst({
         where: {
           users: {
             every: {
@@ -104,14 +104,14 @@ export default {
         },
       });
 
-      if (existingConversation) {
+      if (existingPrivate) {
         return res.json({
           created: false,
-          ...existingConversation,
+          ...existingPrivate,
         });
       }
 
-      const conversation = await postgresClient.conversation.create({
+      const privateConversation = await postgresClient.conversation.create({
         data: {
           users: {
             connect: [{ email: user.email }, { email: receiver.email }],
@@ -121,7 +121,7 @@ export default {
 
       return res.status(201).json({
         created: true,
-        ...conversation,
+        ...privateConversation,
       });
     } catch (err) {
       return next({

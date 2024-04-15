@@ -1,5 +1,5 @@
 import express from 'express';
-import conversationController from '../controllers/conversationController.js';
+import privateController from '../controllers/privateController.js';
 
 // import permissionRequired from '../middlewares/permissionRequired.js';
 // import permissions from '../utils/permissions/permissions.js';
@@ -7,21 +7,21 @@ import conversationController from '../controllers/conversationController.js';
 const router = express.Router();
 
 /* router.use(
-  permissionRequired(permissions.conversation.all.canReadConversation),
+  permissionRequired(permissions.private.all.canReadPrivate),
 ); */
 
 /**
  * @swagger
- * /api/me/conversations:
+ * /api/me/privates:
  *   get:
- *     summary: List of user conversations
+ *     summary: List of user privates
  *     tags:
- *       - conversation
+ *       - private
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       '200':
- *         description: User conversations with the last message, unread message count, and total message count
+ *         description: User privates with the last message, unread message count, and total message count
  *         content:
  *           application/json:
  *             schema:
@@ -29,12 +29,12 @@ const router = express.Router();
  *               items:
  *                 type: object
  *                 properties:
- *                   conversationid:
+ *                   privateid:
  *                     type: integer
- *                     description: The unique identifier of the conversation
+ *                     description: The unique identifier of the private
  *                   receiver:
  *                     type: object
- *                     description: Information about the other user in the conversation
+ *                     description: Information about the other user in the private
  *                     properties:
  *                       id:
  *                         type: integer
@@ -54,13 +54,13 @@ const router = express.Router();
  *                         description: The URL to the user's profile picture
  *                   lastMessage:
  *                     $ref: '#/components/schemas/message'
- *                     description: The last message in the conversation
+ *                     description: The last message in the private
  *                   unreadMessagesCount:
  *                     type: integer
- *                     description: The count of unread messages in the conversation
+ *                     description: The count of unread messages in the private
  *                   totalMessages:
  *                     type: integer
- *                     description: The total number of messages in the conversation
+ *                     description: The total number of messages in the private
  *       '401':
  *         description: Unauthorized
  *       '404':
@@ -68,15 +68,15 @@ const router = express.Router();
  *       '500':
  *         description: Internal server error
  */
-router.get('/', conversationController.getConversations);
+router.get('/', privateController.getPrivates);
 
 /**
  * @swagger
- * /api/me/conversations:
+ * /api/me/privates:
  *   post:
- *     summary: New conversation
+ *     summary: New private
  *     tags:
- *       - conversation
+ *       - private
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -90,7 +90,7 @@ router.get('/', conversationController.getConversations);
  *                 type: integer
  *     responses:
  *       200:
- *         description: Conversation already exists
+ *         description: Private already exists
  *         content:
  *           application/json:
  *             schema:
@@ -104,7 +104,7 @@ router.get('/', conversationController.getConversations);
  *                 id: 1
  *                 created: false
  *       201:
- *         description: New conversation created
+ *         description: New private created
  *         content:
  *           application/json:
  *             schema:
@@ -124,6 +124,6 @@ router.get('/', conversationController.getConversations);
  *       500:
  *        description: Internal server error
  */
-router.post('/', conversationController.newConversation);
+router.post('/', privateController.newPrivate);
 
 export default router;

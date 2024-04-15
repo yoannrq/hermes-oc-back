@@ -24,7 +24,7 @@ const router = express.Router();
  *                 description: The content of the message.
  *               roomType:
  *                 type: string
- *                 enum: [team, conversation, channel]
+ *                 enum: [team, private, channel]
  *                 description: The type of room to send the message
  *               roomId:
  *                 required: true
@@ -125,7 +125,7 @@ router.delete('/:messageId', messageController.deleteMessage);
 
 /**
  * @swagger
- * /api/me/messages/{roomType(team|conversation|channel)}/{roomId}:
+ * /api/me/messages/{roomType(team|private|channel)}/{roomId}:
  *   get:
  *     summary: Retrieve messages from a specific room based on room type and room ID, with pagination
  *     tags:
@@ -138,7 +138,7 @@ router.delete('/:messageId', messageController.deleteMessage);
  *         required: true
  *         schema:
  *           type: string
- *           enum: [team, conversation, channel]
+ *           enum: [team, private, channel]
  *         description: The type of the room to retrieve messages from
  *       - in: path
  *         name: roomId
@@ -210,6 +210,6 @@ router.delete('/:messageId', messageController.deleteMessage);
  *       '500':
  *         description: Internal server error
  */
-router.get('/:roomType(team|conversation|channel)/:roomId', messageController.getOneRoomWithMessages);
+router.get('/:roomType(team|private|channel)/:roomId', messageController.getOneRoomWithMessages);
 
 export default router;

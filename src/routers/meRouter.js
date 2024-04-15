@@ -1,14 +1,14 @@
 import express from 'express';
 import meController from '../controllers/meController.js';
 
-import conversationRouter from './conversationRouter.js';
+import privateRouter from './privateRouter.js';
 import messageRouter from './messageRouter.js';
 import patientRouter from './patientRouter.js';
 
 const router = express.Router();
 
-// Routes conversations
-router.use('/conversations', conversationRouter);
+// Routes privates
+router.use('/privates', privateRouter);
 
 // Routes messages
 router.use('/messages', messageRouter);
@@ -72,9 +72,9 @@ router.patch('/', meController.updateMe);
  * @swagger
  * /api/me/last-message-read:
  *   patch:
- *     summary: Update the last message read for a user in a conversation, channel, or team
+ *     summary: Update the last message read for a user in a private, channel, or team
  *     description: |
- *       Updates the last read message for a user, specifying only one of conversationId, channelId, or teamId.
+ *       Updates the last read message for a user, specifying only one of privateId, channelId, or teamId.
  *       These three parameters are mutually exclusive – only one of them should be provided.
  *     tags:
  *       - me
@@ -92,15 +92,15 @@ router.patch('/', meController.updateMe);
  *               messageId:
  *                 type: string
  *                 description: The ID of the last message that has been read.
- *               conversationId:
+ *               privateId:
  *                 type: integer
- *                 description: The ID of the conversation to update the last message read, mutually exclusive with channelId and teamId.
+ *                 description: The ID of the private to update the last message read, mutually exclusive with channelId and teamId.
  *               channelId:
  *                 type: integer
- *                 description: The ID of the channel to update the last message read, mutually exclusive with conversationId and teamId.
+ *                 description: The ID of the channel to update the last message read, mutually exclusive with privateId and teamId.
  *               teamId:
  *                 type: integer
- *                 description: The ID of the team to update the last message read, mutually exclusive with conversationId and channelId.
+ *                 description: The ID of the team to update the last message read, mutually exclusive with privateId and channelId.
  *     responses:
  *       '200':
  *         description: Last message read updated successfully.

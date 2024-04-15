@@ -42,9 +42,9 @@ export default z.object({
     },
     invalid_type_error: "The field 'roomType' must be a string.",
   })
-    .regex(/team|conversation|channel/, {
+    .regex(/team|private|channel/, {
       message: {
-        value: "The field 'roomType' must be either 'team', 'conversation', or 'channel'.",
+        value: "The field 'roomType' must be either 'team', 'private', or 'channel'.",
         code: 'roomTypeInvalid',
       },
     }),

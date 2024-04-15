@@ -66,24 +66,13 @@
     },
     {
       "ownerEmail": "eva@fox.com",
-      "usersEmail": [
-        "eva@fox.com",
-        "charlie@davis.com",
-        "alice@smith.com",
-        "bob@brown.com"
-      ],
+      "usersEmail": ["eva@fox.com", "charlie@davis.com", "alice@smith.com", "bob@brown.com"],
       "name": "Pole 1",
       "color": "#f6f8fa"
     },
     {
       "ownerEmail": "david@evans.com",
-      "usersEmail": [
-        "david@evans.com",
-        "eva@fox.com",
-        "charlie@davis.com",
-        "alice@smith.com",
-        "bob@brown.com"
-      ],
+      "usersEmail": ["david@evans.com", "eva@fox.com", "charlie@davis.com", "alice@smith.com", "bob@brown.com"],
       "name": "General",
       "color": "#37b258"
     }
@@ -98,19 +87,8 @@
       "email": "capitaine@haddock.fr",
       "address": "123 rue du port",
       "zipCode": { "code": "13001", "cityName": "MARSEILLE 01" },
-      "channels": [
-        "Pharmacy",
-        "General",
-        "Radiology",
-        "Connection with family"
-      ],
-      "users": [
-        "alice@smith.com",
-        "bob@brown.com",
-        "charlie@davis.com",
-        "david@evans.com",
-        "eva@fox.com"
-      ]
+      "channels": ["Pharmacy", "General", "Radiology", "Connection with family"],
+      "users": ["alice@smith.com", "bob@brown.com", "charlie@davis.com", "david@evans.com", "eva@fox.com"]
     },
     {
       "firstname": "Tintin",
@@ -134,12 +112,7 @@
       "address": "55 rue du faubourg Saint-Honoré",
       "zipCode": { "code": "75001", "cityName": "PARIS 01" },
       "channels": ["Pharmacy", "General", "Connection with family"],
-      "users": [
-        "alice@smith.com",
-        "charlie@davis.com",
-        "david@evans.com",
-        "eva@fox.com"
-      ]
+      "users": ["alice@smith.com", "charlie@davis.com", "david@evans.com", "eva@fox.com"]
     }
   ],
   "channelsTypes": [
@@ -267,7 +240,7 @@
       "channelTypeName": "Connection with family"
     }
   ],
-  "conversations": [
+  "privateConversations": [
     ["alice@smith.com", "bob@brown.com"],
     ["alice@smith.com", "eva@fox.com"],
     ["alice@smith.com", "charlie@davis.com"],

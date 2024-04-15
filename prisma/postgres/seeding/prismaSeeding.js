@@ -157,8 +157,8 @@ async function main() {
     });
   }
 
-  for (const userEmails of seed.conversations) {
-    const conversationRecord = await postgresClient.conversation.create({
+  for (const userEmails of seed.privateConversations) {
+    const privateConversationRecord = await postgresClient.conversation.create({
       data: {
         users: {
           connect: userEmails.map((email) => ({ email: email })),

@@ -2,7 +2,7 @@ import postgresClient from '../../models/postgresClient.js';
 import mongoClient from '../../models/mongoClient.js';
 
 import teamService from './messageServices/messageTeamService.js';
-import conversationService from './messageServices/messageConversationService.js';
+import privateService from './messageServices/messagePrivateService.js';
 import channelService from './messageServices/messageChannelService.js';
 
 import getObjectIdFromTimestamp from '../../utils/formatingFunctions/getObjectIdFromTimestamp.js';
@@ -10,7 +10,7 @@ import getDateFromMongoObject from '../../utils/formatingFunctions/getDateFromMo
 
 const roomService = {
   team: teamService,
-  conversation: conversationService,
+  private: privateService,
   channel: channelService,
 
   checkInvalidRoomType(roomType) {
@@ -33,7 +33,7 @@ const roomService = {
     roomType, roomId, page = 1, pageSize = 50, originTimestamp = Date.now(),
   }) {
     this.checkInvalidRoomType(roomType);
-    const roomIdField = `${roomType}Id`;
+    const { roomIdField } = this[roomType];
 
     const totalMessages = await mongoClient.message.count({
       where: {
@@ -98,7 +98,7 @@ const roomService = {
     roomType, roomId, authorId, content,
   }) {
     this.checkInvalidRoomType(roomType);
-    const roomIdField = `${roomType}Id`;
+    const { roomIdField } = this[roomType];
 
     return mongoClient.message.create({
       data: {
@@ -176,7 +176,7 @@ const roomService = {
     roomType, roomId, userId, messageId,
   }) {
     this.checkInvalidRoomType(roomType);
-    const roomIdField = `${roomType}Id`;
+    const { roomIdField } = this[roomType];
 
     const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
       where: {
@@ -219,7 +219,7 @@ const roomService = {
   async getRoomInfo({ roomType, roomId, userId }) {
     this.checkInvalidRoomType(roomType);
 
-    const roomIdField = `${roomType}Id`;
+    const { roomIdField } = this[roomType];
 
     let lastMessage = await mongoClient.message.findFirst({
       where: { [roomIdField]: roomId },

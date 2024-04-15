@@ -69,7 +69,7 @@ export default {
 
     // Destruction des variables du req.body pour ne pas avoir d'erreur avec data (champs manquant)
     const {
-      conversationId, channelId, teamId, messageId,
+      privateId, channelId, teamId, messageId,
     } = req.body;
 
     if (!success) {
@@ -81,19 +81,19 @@ export default {
       });
     }
 
-    if ((conversationId && channelId) || (conversationId && teamId) || (channelId && teamId)) {
+    if ((privateId && channelId) || (privateId && teamId) || (channelId && teamId)) {
       return next({
         status: 400,
-        message: 'You must provide only one of conversationId, channelId or teamId',
+        message: 'You must provide only one of privateId, channelId or teamId',
       });
     }
 
     let entryType;
     let entryId;
 
-    if (conversationId) {
-      entryType = 'conversationId';
-      entryId = parseInt(conversationId, 10);
+    if (privateId) {
+      entryType = 'privateId';
+      entryId = parseInt(privateId, 10);
     } else if (channelId) {
       entryType = 'channelId';
       entryId = parseInt(channelId, 10);
@@ -103,7 +103,7 @@ export default {
     } else {
       return res.status(400).json({
         status: 400,
-        message: 'Missing conversationId, channelId, or teamId',
+        message: 'Missing privateId, channelId, or teamId',
       });
     }
 

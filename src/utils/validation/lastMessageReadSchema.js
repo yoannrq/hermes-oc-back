@@ -57,23 +57,23 @@ export default z.object({
     })
     .optional(),
 
-  conversationId: z.string({
+  privateId: z.string({
     required_error: {
-      value: "The field 'conversationId' is required.",
-      code: 'conversationIdRequired',
+      value: "The field 'privateId' is required.",
+      code: 'privateIdRequired',
     },
-    invalid_type_error: "The field 'conversationId' must be a string.",
+    invalid_type_error: "The field 'privateId' must be a string.",
   })
     .regex(/\d/, {
       message: {
-        value: "The field 'conversationId' must contain only numbers.",
-        code: 'conversationIdInvalid',
+        value: "The field 'privateId' must contain only numbers.",
+        code: 'privateIdInvalid',
       },
     })
     .min(1, {
       message: {
-        value: "The field 'conversationId' must be at least 1 character long.",
-        code: 'conversationIdTooShort',
+        value: "The field 'privateId' must be at least 1 character long.",
+        code: 'privateIdTooShort',
       },
     })
     .optional(),
