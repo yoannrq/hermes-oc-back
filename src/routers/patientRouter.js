@@ -116,6 +116,90 @@ router.get('/:patientId/channels', patientController.getPatientWithChannels);
  */
 router.get('/:patientId/users', patientController.getPatientWithUsers);
 
-// router.post('/:patient-id/users', patientController.addUserToPatient);
+/**
+ * @swagger
+ * /api/me/patients/{patientId}/users:
+ *   post:
+ *     summary: Add an user to a patient
+ *     tags:
+ *       - patient
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: patientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               rppsCode:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/patientWithUsers'
+ *       '401':
+ *         description: Unauthorized access.
+ *       '404':
+ *         description: User not found.
+ *       '500':
+ *         description: Internal server error.
+ *
+ */
+router.post('/:patientId/users', patientController.addUserToPatient);
+
+/**
+ * @swagger
+ * /api/me/patients/{patientId}/users:
+ *   delete:
+ *     summary: Remove an user to a patient
+ *     tags:
+ *       - patient
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: patientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               rppsCode:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/patientWithUsers'
+ *       '401':
+ *         description: Unauthorized access.
+ *       '404':
+ *         description: User not found.
+ *       '500':
+ *         description: Internal server error.
+ *
+ */
+router.delete('/:patientId/users', patientController.removeUserFromPatient);
 
 export default router;

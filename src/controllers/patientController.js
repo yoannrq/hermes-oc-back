@@ -3,6 +3,7 @@ import messageService from '../services/message/messageService.js';
 import getDateFromMongoObject from '../utils/formatingFunctions/getDateFromMongoObject.js';
 import patientSchema from '../utils/validation/patientSchema.js';
 import formatingName from '../utils/formatingFunctions/formatingName.js';
+import userSchema from '../utils/validation/userSchema.js';
 
 export default {
   async getPatients(req, res) {
@@ -201,5 +202,115 @@ export default {
     }
 
     return res.status(200).json(patient);
+  },
+
+  async addUserToPatient(req, res, next) {
+    const { patientId } = req.params;
+
+    const { success, data, error } = userSchema.partial().safeParse(req.body);
+
+    if (!success) {
+      // erreur de validation de schéma zod !
+      return next({
+        status: 400,
+        message: 'Schema validation error.',
+        errors: error.errors,
+      });
+    }
+
+    const { email, rppsCode } = data;
+
+    if (email && rppsCode) {
+      return next({
+        status: 400,
+        message: 'You must provide either an email or an RPPS code, not both.',
+      });
+    }
+
+    const userToAdd = await postgresClient.user.findFirst({
+      where: {
+        OR: [{ email }, { rppsCode }],
+      },
+    });
+
+    if (!userToAdd) {
+      return next({
+        status: 404,
+        message: 'User not found.',
+      });
+    }
+
+    const updatedPatient = await postgresClient.patient.update({
+      where: {
+        id: parseInt(patientId, 10),
+      },
+      data: {
+        users: {
+          connect: {
+            id: userToAdd.id,
+          },
+        },
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    return res.status(200).json(updatedPatient);
+  },
+
+  async removeUserFromPatient(req, res, next) {
+    const { patientId } = req.params;
+
+    const { success, data, error } = userSchema.partial().safeParse(req.body);
+
+    if (!success) {
+      // erreur de validation de schéma zod !
+      return next({
+        status: 400,
+        message: 'Schema validation error.',
+        errors: error.errors,
+      });
+    }
+
+    const { email, rppsCode } = data;
+
+    if (email && rppsCode) {
+      return next({
+        status: 400,
+        message: 'You must provide either an email or an RPPS code, not both.',
+      });
+    }
+
+    const userToRemove = await postgresClient.user.findFirst({
+      where: {
+        OR: [{ email }, { rppsCode }],
+      },
+    });
+
+    if (!userToRemove) {
+      return next({
+        status: 404,
+        message: 'User not found.',
+      });
+    }
+
+    const updatedPatient = await postgresClient.patient.update({
+      where: {
+        id: parseInt(patientId, 10),
+      },
+      data: {
+        users: {
+          disconnect: {
+            id: parseInt(userToRemove.id, 10),
+          },
+        },
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    return res.status(200).json(updatedPatient);
   },
 };
