@@ -1,4 +1,3 @@
-import postgresClient from '../../models/postgresClient.js';
 import mongoClient from '../../models/mongoClient.js';
 
 import teamService from './messageServices/messageTeamService.js';
