@@ -158,6 +158,18 @@ router.delete('/:messageId', messageController.deleteMessage);
  *           type: integer
  *           default: 10
  *         description: Number of messages per page
+ *       - in: query
+ *         name: originTimestamp
+ *         schema:
+ *           type: integer
+ *           default: Date.now()
+ *         description: The timestamp to set the origin (UNIX milliseconds)
+ *       - in: query
+ *         name: timelineDirection
+ *         schema:
+ *           type: string
+ *           default: older
+ *         description: The direction of the timeline to retrieve messages from (older or newer)
  *     responses:
  *       '200':
  *         description: Room messages retrieved successfully

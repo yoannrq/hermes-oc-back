@@ -30,7 +30,7 @@ const roomService = {
    *
    * */
   async getMessagesWithPagination({
-    roomType, roomId, page = 1, pageSize = 50, originTimestamp = Date.now(),
+    roomType, roomId, page = 1, pageSize = 50, originTimestamp = Date.now(), timelineDirection = 'older',
   }) {
     this.checkInvalidRoomType(roomType);
     const { roomIdField } = this[roomType];
@@ -41,6 +41,14 @@ const roomService = {
       },
     });
 
+    // Définition de la direction de la timeline, par défaut on récupère les messages plus anciens
+    let direction = 'lt';
+
+    // Si 'newer' est passé en paramètre, on récupère les messages plus récents
+    if (timelineDirection === 'newer') {
+      direction = 'gt';
+    }
+
     const totalPages = Math.ceil(totalMessages / pageSize);
     const offset = (page - 1) * pageSize;
     const originObjectId = getObjectIdFromTimestamp(originTimestamp);
@@ -49,7 +57,7 @@ const roomService = {
       where: {
         [roomIdField]: roomId,
         id: {
-          lt: originObjectId,
+          [direction]: originObjectId,
         },
       },
       // Pagination requires descending order

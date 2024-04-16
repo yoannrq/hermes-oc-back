@@ -122,6 +122,8 @@ export default {
     const roomId = parseInt(req.params.roomId, 10);
     const page = parseInt(req.query.page, 10) || 1;
     const pageSize = parseInt(req.query.pageSize, 10) || 50;
+    const originTimestamp = parseInt(req.query.originTimestamp, 10) || Date.now();
+    const timelineDirection = req.query.timelineDirection || 'older';
 
     try {
       const canAccesRoom = await messageService.canAccessRoom({ roomType, userId: user.id, roomId });
@@ -135,7 +137,8 @@ export default {
         roomId,
         page,
         pageSize,
-        originTimestamp: Date.now(),
+        originTimestamp,
+        timelineDirection,
       });
 
       return res.status(200).json({
