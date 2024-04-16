@@ -104,5 +104,12 @@ export default z.object({
     .optional(),
 
   profilePictureUrl: z
-    .string().optional(),
+    .string({
+      invalid_type_error: "The field 'profilePictureUrl' must be a string.",
+    }).url({
+      message: {
+        value: "The field 'profilePictureUrl' must be a valid url address.",
+        code: 'profilePictureUrlInvalid',
+      },
+    }).optional(),
 }).strict();
