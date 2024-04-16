@@ -107,12 +107,12 @@ export default z.object({
     }),
 
   zipCodeId: z
-    .string({
+    .number({
       required_error: {
         value: "The field 'zipCodeId' is required.",
         code: 'zipCodeIdRequired',
       },
-      invalid_type_error: "The field 'zipCodeId' must be a string.",
+      invalid_type_error: "The field 'zipCodeId' must be a number.",
     })
     .min(1, {
       message: {
@@ -120,7 +120,7 @@ export default z.object({
         code: 'zipCodeIdTooShort',
       },
     })
-    .max(4, {
+    .max(6500, {
       message: {
         value: "The field 'zipCodeId' must be at most 4 characters long.",
         code: 'zipCodeIdTooLong',

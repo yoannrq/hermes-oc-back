@@ -61,6 +61,25 @@ export default {
     res.status(200).json(patientInfoById);
   },
 
+  async getPatientById(req, res, next) {
+    const { patientId } = req.params;
+
+    const patient = await postgresClient.patient.findFirst({
+      where: {
+        id: parseInt(patientId, 10),
+      },
+    });
+
+    if (!patient) {
+      return next({
+        status: 404,
+        message: 'Patient not found.',
+      });
+    }
+
+    return res.status(200).json(patient);
+  },
+
   async createPatient(req, res, next) {
     const { user } = res.locals;
     const { success, data, error } = patientSchema.safeParse(req.body);
@@ -119,6 +138,41 @@ export default {
     return res.status(201).json(newPatient);
   },
 
+  async updatePatient(req, res, next) {
+    const { patientId } = req.params;
+    const { success, data, error } = patientSchema.partial().safeParse(req.body);
+
+    if (!success) {
+      // erreur de validation de schéma zod !
+      return next({
+        status: 400,
+        message: 'Schema validation error.',
+        errors: error.errors,
+      });
+    }
+
+    if (data.firstname) {
+      data.firstname = formatingName(data.firstname);
+    }
+
+    if (data.lastname) {
+      data.lastname = formatingName(data.lastname);
+    }
+
+    if (data.birthdate) {
+      data.birthdate = new Date(data.birthdate);
+    }
+
+    const updatedPatient = await postgresClient.patient.update({
+      where: {
+        id: parseInt(patientId, 10),
+      },
+      data,
+    });
+
+    return res.status(200).json(updatedPatient);
+  },
+
   async getChannelsFromPatientId(req, res) {
     const { user } = res.locals;
     const { patientId } = req.params;
@@ -157,6 +211,16 @@ export default {
           },
         },
       },
+      select: {
+        id: true,
+        email: true,
+        firstname: true,
+        lastname: true,
+        rppsCode: true,
+        profilePictureUrl: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     return res.status(200).json(users);
@@ -178,43 +242,68 @@ export default {
 
     const { email, rppsCode } = data;
 
-    if (email && rppsCode) {
+    if ((email && rppsCode) || (!email && !rppsCode)) {
       return next({
         status: 400,
-        message: 'You must provide either an email or an RPPS code, not both.',
+        message: 'You must provide either an email or an RPPS code.',
       });
     }
 
-    const userToAdd = await postgresClient.user.findFirst({
-      where: {
-        OR: [{ email }, { rppsCode }],
-      },
-    });
+    let patientWithUsers;
 
-    if (!userToAdd) {
-      return next({
-        status: 404,
-        message: 'User not found.',
-      });
-    }
-
-    const updatedPatient = await postgresClient.patient.update({
-      where: {
-        id: parseInt(patientId, 10),
-      },
-      data: {
-        users: {
-          connect: {
-            id: userToAdd.id,
+    if (email) {
+      patientWithUsers = await postgresClient.patient.update({
+        where: { id: parseInt(patientId, 10) },
+        data: {
+          users: {
+            connect: {
+              email,
+            },
           },
         },
-      },
-      include: {
-        users: true,
-      },
-    });
+        include: {
+          users: {
+            select: {
+              id: true,
+              email: true,
+              firstname: true,
+              lastname: true,
+              rppsCode: true,
+              profilePictureUrl: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+        },
+      });
+    } else {
+      patientWithUsers = await postgresClient.patient.update({
+        where: { id: parseInt(patientId, 10) },
+        data: {
+          users: {
+            connect: {
+              rppsCode,
+            },
+          },
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              email: true,
+              firstname: true,
+              lastname: true,
+              rppsCode: true,
+              profilePictureUrl: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+        },
+      });
+    }
 
-    return res.status(200).json(updatedPatient);
+    return res.status(200).json(patientWithUsers);
   },
 
   async removeUserFromPatient(req, res, next) {

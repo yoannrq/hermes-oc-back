@@ -30,6 +30,32 @@ router.get('/', patientController.getPatients);
 /**
  * @swagger
  * /api/me/patients:
+ *   get:
+ *     summary: Get a patient by his id
+ *     tags:
+ *       - patient
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/patient'
+ *       '401':
+ *         description: Unauthorized access.
+ *       '404':
+ *         description: Patient not found.
+ *       '500':
+ *         description: Internal server error.
+ *
+ */
+router.get('/:patientId', patientController.getPatientById);
+
+/**
+ * @swagger
+ * /api/me/patients:
  *   post:
  *     summary: Create a new patient
  *     tags:
@@ -55,6 +81,40 @@ router.get('/', patientController.getPatients);
  *         description: Internal server error.
  */
 router.post('/', patientController.createPatient);
+
+/**
+ * @swagger
+ * /api/me/patients/{patientId}:
+ *   patch:
+ *     summary: Update a patient by his id
+ *     tags:
+ *       - patient
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: patientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/patient'
+ *     responses:
+ *       '200':
+ *         description: Patient updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/patient'
+ *       '401':
+ *         description: Unauthorized access.
+ *       '500':
+ *         description: Internal server error.
+ */
+router.patch('/:patientId', patientController.updatePatient);
 
 /**
  * @swagger
