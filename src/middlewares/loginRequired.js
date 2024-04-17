@@ -4,7 +4,7 @@ import '../helpers/envLoader.js';
 
 async function loginRequired(req, res, next) {
   // Récupération du token dans le cookie
-  const token = req.cookies.Authorization;
+  const token = req.cookies?.Authorization;
   // Si le token n'est pas présent
   if (!token) {
     return next({
