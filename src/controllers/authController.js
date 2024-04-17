@@ -1,12 +1,12 @@
 // [ packages imports ]
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import '../helpers/envLoader.js';
 
 // [ local imports ]
 import postgresClient from '../models/postgresClient.js';
 import userSchema from '../utils/validation/userSchema.js';
 import formatingName from '../utils/formatingFunctions/formatingName.js';
+import authentificationService from '../services/authentification.js';
 
 const ONE_SECOND = 1000;
 const ONE_MINUTE = ONE_SECOND * 60;
@@ -94,12 +94,8 @@ export default {
         return next(errorMessage);
       }
 
-      // Générer un token JWT
-      const privateKey = process.env.JWT_ES256_PRIVATE_KEY;
-      const token = jwt.sign({ userId: user.id }, privateKey, {
-        expiresIn: '1h',
-        algorithm: 'ES256',
-      });
+      // Générer un token JWT via le service d'authentification
+      const token = authentificationService.generateJWT(user);
 
       // Ajouter le token dans un cookie
       const cookieOptions = {
