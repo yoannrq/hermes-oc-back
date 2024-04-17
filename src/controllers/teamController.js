@@ -69,7 +69,6 @@ export default {
           users: { connect: { id: user.id } },
         },
       });
-      console.log(team);
       return res.status(201).json({
         created: true,
         ...team,
@@ -103,8 +102,7 @@ export default {
           message: 'Team not found',
         });
       }
-      console.log('team: ', team);
-      return res.status(200).json({ team });
+      return res.status(200).json({ ...team });
     } catch (error) {
       return next({
         status: 500,
@@ -189,8 +187,8 @@ export default {
       });
       return res.status(201).json({
         added: true,
-        ...userId,
-        ...updatedTeam,
+        userId,
+        updatedTeam,
       });
     } catch (error) {
       return next({
@@ -212,9 +210,11 @@ export default {
         where: { id: teamId },
         data: { users: { disconnect: { id: userId } } },
       });
-      const result = { teamId, userId, updatedTeam };
-      console.log('user removed: ', result);
-      return res.status(200).json(updatedTeam);
+      return res.status(200).json({
+        deleted: true,
+        userId,
+        updatedTeam,
+      });
     } catch (error) {
       return next({
         status: 400,
