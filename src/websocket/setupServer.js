@@ -25,7 +25,6 @@ for (const file of jsFiles) {
 export default function setupServer(io) {
   io.on('connection', async (socket) => {
     console.log('A user connected', socket.id);
-
     socket.on('authenticate', async () => {
       const socketUser = await mongoClient.socket.findFirst({ where: { socketId: socket.id } });
 
@@ -50,6 +49,7 @@ export default function setupServer(io) {
         socket.locals = { user };
         setupHandlers.forEach((setupHandler) => setupHandler(io, socket));
         socket.emit('authenticated', { socketId, user });
+        socket.join('message:private:1');
       }
     });
 

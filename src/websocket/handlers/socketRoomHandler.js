@@ -1,31 +1,31 @@
 /**
-* Les noms des cannaux d'événements Websocket s'écrivent sans espace avec
-* des doubles points en séparateur sous la forme: '[eventType]:[eventContext]'
-* Exemple : 'message:private:1'
-*
-* [eventType] : (
-*   'message',
-*   'patient',
-*   'user',
-* )
-*
-* [eventContext]: Dépend de l'eventType
-*    EVENT : [message]:
-*      Noms des canaux de message : [eventType]:[roomType]:[roomId]
-*      [roomType]: (
-*        'Private',
-*        'Channel',
-*        'Team',
-*       )
-*      [roomId]: ( nombre entier > 0)
-*      Example: 'message:private:1'
-*
-*    EVENT [patient]:
-*      Noms des canaux de patient : [eventType]:[patientId]
-*     (
-*
-*     )
-* */
+ * Les noms des cannaux d'événements Websocket s'écrivent sans espace avec
+ * des doubles points en séparateur sous la forme: '[eventType]:[eventContext]'
+ * Exemple : 'message:private:1'
+ *
+ * [eventType] : (
+ *   'message',
+ *   'patient',
+ *   'user',
+ * )
+ *
+ * [eventContext]: Dépend de l'eventType
+ *    EVENT : [message]:
+ *      Noms des canaux de message : [eventType]:[roomType]:[roomId]
+ *      [roomType]: (
+ *        'Private',
+ *        'Channel',
+ *        'Team',
+ *       )
+ *      [roomId]: ( nombre entier > 0)
+ *      Example: 'message:private:1'
+ *
+ *    EVENT [patient]:
+ *      Noms des canaux de patient : [eventType]:[patientId]
+ *     (
+ *
+ *     )
+ * */
 
 /**
  * @param {import('socket.io').Server} io
@@ -72,7 +72,5 @@ export default (io, socket) => {
     socket.emit('ok socket list');
   });
 
-  socket.on('socketRoom:join:patient', ({}) => {
-
-  });
+  socket.on('socketRoom:join:patient', ({}) => {});
 };

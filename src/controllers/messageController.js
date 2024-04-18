@@ -44,6 +44,15 @@ export default {
         messageId: message.id,
       });
 
+      req.app
+        .get('io')
+        .to(`message:${roomType}:${roomId}`)
+        .emit('newMessage', {
+          room: { id: roomId, type: roomType, eventType: 'message' },
+          message,
+          author: user,
+        });
+
       return res.status(201).json(message);
     } catch (err) {
       return next({

@@ -19,7 +19,8 @@ const ioOptions =
 
 const io = new Server(server, ioOptions);
 
-setupWebsocket(io, app);
+app.set('io', io);
+setupWebsocket(io);
 
 const PORT = process.env.PORT || 3000;
 
