@@ -37,8 +37,6 @@ export default {
         },
       });
 
-      console.log('Added socketId to user.', res.locals.user.id, socketId);
-
       return res.status(201).json(socketBinding);
     } catch (error) {
       return next(error);

@@ -28,8 +28,6 @@ export default function setupServer(io) {
     socket.on('authenticate', async () => {
       const socketUser = await mongoClient.socket.findFirst({ where: { socketId: socket.id } });
 
-      console.log('search authentification', socket.id, socketUser);
-
       if (socketUser) {
         const { socketId, userId } = socketUser;
         const user = await postgresClient.user.findUnique({
