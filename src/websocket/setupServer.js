@@ -49,7 +49,6 @@ export default function setupServer(io) {
         socket.locals = { user };
         setupHandlers.forEach((setupHandler) => setupHandler(io, socket));
         socket.emit('authenticated', { socketId, user });
-        socket.join('message:private:1');
       }
     });
 
