@@ -28,16 +28,16 @@
  *   }
  * */
 
-import messageController from '../controllers/messageController.js';
+import messageHandler from '../handlers/messageHandler.js';
 
 /**
  * @param {import('socket.io').Server} io
  * @param {import('socket.io').Socket} socket
  * */
 export default (io, socket) => {
-  socket.on('socketRoom:join:message', messageController.joinMessageRoom(io, socket));
-  socket.on('socketRoom:leave:message', messageController.leaveMessageRoom(io, socket));
-  socket.on('socketRoom:list', messageController.listRooms(io, socket));
+  socket.on('socketRoom:join:message', messageHandler.joinMessageRoom(io, socket));
+  socket.on('socketRoom:leave:message', messageHandler.leaveMessageRoom(io, socket));
+  socket.on('socketRoom:list', messageHandler.listRooms(io, socket));
 
   socket.on('socketRoom:join:patient', ({}) => {});
 };
