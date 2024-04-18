@@ -1,10 +1,45 @@
+import socketRoomSchema from '../../utils/validation/socketRoomSchema.js';
+import messageService from '../../services/message/messageService.js';
+
 export default {
   joinMessageRoom(io, socket) {
-    return ({ roomType, roomId }, callback) => {
+    return async (args, callback) => {
       const { user } = socket.locals;
+      const { roomType, roomId } = args;
 
       const roomName = 'message';
-      const roomArgs = { roomId, roomType };
+
+      // Vérification du schéma des arguments de la room
+      const { success, data, error } = socketRoomSchema.safeParse(roomType, roomId);
+      if (!success) {
+        if (callback) {
+          callback({
+            success: false,
+            message: 'Schema validation error.',
+            error: error.errors,
+          });
+        }
+        return;
+      }
+
+      const roomArgs = { data };
+
+      const canAccessRoom = await messageService.canAccessRoom({
+        roomType,
+        roomId,
+        userId: user.id,
+      });
+
+      if (!canAccessRoom) {
+        if (callback) {
+          callback({
+            success: false,
+            message: 'You are not allowed to access this room',
+          });
+        }
+        return;
+      }
+
       const socketRoomId = `${roomName}:${roomType}:${roomId}`;
       socket.join(socketRoomId);
 
@@ -27,7 +62,18 @@ export default {
       const { user } = socket.locals;
 
       const roomName = 'message';
-      const roomArgs = { roomId, roomType };
+      const { success, data, error } = socketRoomSchema.safeParse({ roomId, roomType });
+
+      if (!success) {
+        if (callback) {
+          callback({
+            errors: error.errors,
+          });
+        }
+        return;
+      }
+
+      const roomArgs = { data };
       const socketRoomId = `${roomName}:${roomType}:${roomId}`;
       socket.leave(socketRoomId);
 
@@ -38,9 +84,11 @@ export default {
 
       console.log(`${user.id} has left 'message:${roomType}:${roomId}'`);
 
-      callback({
-        message: `${user.id} has left 'message:${roomType}:${roomId}'`,
-      });
+      if (callback) {
+        callback({
+          message: `${user.id} has left 'message:${roomType}:${roomId}'`,
+        });
+      }
     };
   },
 
@@ -49,9 +97,9 @@ export default {
       const { user } = socket.locals;
 
       const roomList = socket.rooms;
-      console.log(`Room list for userId = ${user.id} : `, roomList);
+      console.log(`userId = ${user.id}, roomList = `, roomList);
 
-      socket.emit('ok socket list');
+      socket.to('roomList').emit(roomList);
     };
   },
 };

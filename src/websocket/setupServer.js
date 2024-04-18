@@ -44,7 +44,7 @@ export default function setupServer(io) {
           return;
         }
 
-        console.log(`Websocket id ${socketId} is bind to the user : ${user}`);
+        console.log(`Websocket id ${socketId} is bind to the user : ${user.id}`);
         // eslint-disable-next-line no-param-reassign
         socket.locals = { user };
         setupHandlers.forEach((setupHandler) => setupHandler(io, socket));
