@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import cookieParser from 'cookie-parser';
 
-import loginRequired from '../middlewares/loginRequired.js';
+import mongoClient from '../models/mongoClient.js';
+import postgresClient from '../models/postgresClient.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,33 +23,43 @@ for (const file of jsFiles) {
  * @param {import('socket.io').Server} io
  * */
 export default function setupServer(io) {
-  io.use((socket, next) => {
-    console.log('Check once jwt', socket.handshake.auth.token);
-    socket.locals = {
-      user: {
-        id: 1,
-        username: 'test',
-      },
-    };
-    next();
-  });
+  io.on('connection', async (socket) => {
+    console.log('A user connected', socket.id);
 
-  io.on('connection', (socket) => {
-    console.log('a user connected', socket.id, socket.username);
-    socket.emit('connected', socket.id);
+    socket.on('authenticate', async () => {
+      const socketUser = await mongoClient.socket.findFirst({ where: { socketId: socket.id } });
 
-    socket.on('authenticate', (jwt) => {
-      console.log('authenticate', jwt);
+      console.log('search authentification', socket.id, socketUser);
+
+      if (socketUser) {
+        const { socketId, userId } = socketUser;
+        const user = await postgresClient.user.findUnique({
+          where: { id: userId },
+          include: {
+            roles: true,
+          },
+        });
+
+        if (!user) {
+          console.log(`UserId ${userId} not found for socketId ${socketId}`);
+          return;
+        }
+
+        console.log(`Websocket id ${socketId} is bind to the user : ${user}`);
+        // eslint-disable-next-line no-param-reassign
+        socket.locals = { user };
+        setupHandlers.forEach((setupHandler) => setupHandler(io, socket));
+        socket.emit('authenticated', { socketId, user });
+      }
     });
 
-    socket.on('hello', (data) => {
-      console.log('hello', data, socket.locals.user);
-    });
-
-    setupHandlers.forEach((setupHandler) => setupHandler(io, socket));
-
-    socket.on('disconnect', () => {
-      console.log('user disconnected', socket.id, socket.username);
+    socket.on('disconnect', async () => {
+      const userSocket = await mongoClient.socket.deleteMany({
+        where: {
+          socketId: socket.id,
+        },
+      });
+      console.log(`The socketId ${socket.id} has been disconnected.`);
     });
   });
 }

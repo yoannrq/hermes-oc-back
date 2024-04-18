@@ -8,17 +8,18 @@ import setupWebsocket from './websocket/setupServer.js';
 
 const server = createServer(app);
 
-const ioOptions = process.env.NODE_ENV === 'production'
-  // Production options
-  ? {}
-  // Development options
-  : {
-    cors: { origin: 'http://localhost:5173' }, // Allow vite dev server to connect in development
-  };
+const ioOptions =
+  process.env.NODE_ENV === 'production'
+    ? // Production options
+      {}
+    : // Development options
+      {
+        cors: { origin: 'http://localhost:5173' }, // Allow vite dev server to connect in development
+      };
 
 const io = new Server(server, ioOptions);
 
-setupWebsocket(io);
+setupWebsocket(io, app);
 
 const PORT = process.env.PORT || 3000;
 

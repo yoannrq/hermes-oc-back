@@ -1,20 +1,17 @@
 import express from 'express';
 import meController from '../controllers/meController.js';
 
-import privateRouter from './privateRouter.js';
 import messageRouter from './messageRouter.js';
 import patientRouter from './patientRouter.js';
+import privateRouter from './privateRouter.js';
+import socketRouter from './socketRouter.js';
 
 const router = express.Router();
 
-// Routes privates
 router.use('/privates', privateRouter);
-
-// Routes messages
 router.use('/messages', messageRouter);
-
-// Routes patients
 router.use('/patients', patientRouter);
+router.use('/socketIds', socketRouter);
 
 /**
  * @swagger

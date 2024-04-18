@@ -44,6 +44,12 @@ model Permission {
   recordId       Int?   @map("rcId")
 }
 
+model Socket {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  userId   Int    @map("uId")
+  socketId String @map("sId")
+}
+
 model RefreshToken {
   id    String @id @default(auto()) @map("_id") @db.ObjectId
   token String @unique @map("tkn")

@@ -26,25 +26,20 @@ for (const file of files) {
 }
 
 const options = {
-
   definition: {
-
     openapi: '3.0.0',
 
     info: {
-
       title: 'Hermès API Documentation',
 
       version: '1.0.0',
 
       description: 'Hermès messagerie API documentation',
-
     },
 
     servers: [{ url: process.env.URL_API }],
 
     tags: [
-
       { name: 'auth', description: 'Authentication management' },
 
       { name: 'search', description: 'Routes about search' },
@@ -63,34 +58,27 @@ const options = {
 
       { name: 'me', description: 'Routes about currently logged user' },
 
-      { name: 'location', description: 'Routes about cities and zip codes' },
+      { name: 'socket', description: 'Socket management' },
 
+      { name: 'location', description: 'Routes about cities and zip codes' },
     ],
 
     components: {
-
       schemas,
 
       securitySchemes: {
-
         bearerAuth: {
-
           type: 'http',
 
           scheme: 'bearer',
 
           bearerFormat: 'JWT',
-
         },
-
       },
-
     },
-
   },
 
   apis: ['./src/routers/*.js'],
-
 };
 
 const swaggerSpec = swaggerJsdoc(options);
