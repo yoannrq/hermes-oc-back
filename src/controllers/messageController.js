@@ -44,14 +44,15 @@ export default {
         messageId: message.id,
       });
 
-      req.app
-        .get('io')
-        .to(`message:${roomType}:${roomId}`)
-        .emit('newMessage', {
-          room: { id: roomId, type: roomType, eventType: 'message' },
-          message,
-          author: user,
-        });
+      const roomName = 'message';
+      const roomArgs = { roomId, roomType };
+      const socketRoomId = `${roomName}:${roomType}:${roomId}`;
+
+      req.app.get('io').to(socketRoomId).emit('newMessage', {
+        room: { roomName, roomArgs },
+        message,
+        author: user,
+      });
 
       return res.status(201).json(message);
     } catch (err) {
