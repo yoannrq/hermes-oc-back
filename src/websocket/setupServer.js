@@ -7,14 +7,14 @@ import postgresClient from '../models/postgresClient.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const jsFiles = fs.readdirSync(path.join(__dirname, 'routers')).filter((file) => file.endsWith('.js'));
+const jsFiles = fs.readdirSync(path.join(__dirname, 'listeners')).filter((file) => file.endsWith('.js'));
 
 const setupHandlers = [];
 
 // eslint-disable-next-line no-restricted-syntax
 for (const file of jsFiles) {
   // eslint-disable-next-line no-await-in-loop
-  const module = await import(`./routers/${file}`);
+  const module = await import(`./listeners/${file}`);
   setupHandlers.push(module.default);
 }
 

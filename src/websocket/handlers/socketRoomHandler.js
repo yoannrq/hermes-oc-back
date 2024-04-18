@@ -16,6 +16,7 @@ export default {
       console.log(`${user.id} has join 'message:${roomType}:${roomId}'`);
 
       callback({
+        success: true,
         message: `${user.id} has join 'message:${roomType}:${roomId}'`,
       });
     };
