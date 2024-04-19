@@ -239,6 +239,14 @@ const roomService = {
       orderBy: { id: 'desc' },
     });
 
+    if (lastMessage) {
+      const date = getDateFromMongoObject(lastMessage);
+      lastMessage = {
+        ...lastMessage,
+        date,
+      };
+    }
+
     const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
       where: {
         [roomIdField]: roomId,

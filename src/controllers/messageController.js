@@ -44,6 +44,16 @@ export default {
         messageId: message.id,
       });
 
+      const roomName = 'message';
+      const roomArgs = { roomId, roomType };
+      const socketRoomId = `${roomName}:${roomType}:${roomId}`;
+
+      req.app.get('io').to(socketRoomId).emit('newMessage', {
+        room: { roomName, roomArgs },
+        message,
+        author: user,
+      });
+
       return res.status(201).json(message);
     } catch (err) {
       return next({
@@ -81,6 +91,38 @@ export default {
         return res.status(404).json({ message: 'Message not found' });
       }
 
+      let roomType;
+      let roomId;
+
+      if (updatedMessage.conversationId) {
+        roomType = 'private';
+        roomId = updatedMessage.conversationId;
+      } else if (updatedMessage.channelId) {
+        roomType = 'channel';
+        roomId = updatedMessage.channelId;
+      } else if (updatedMessage.teamId) {
+        roomType = 'team';
+        roomId = updatedMessage.teamId;
+      } else {
+        return next({
+          status: 500,
+          message: 'Internal database error',
+          error: 'Message has no roomType or roomId',
+        });
+      }
+
+      // Préparation des données pour l'événement Websocket
+      const roomName = 'message';
+      const roomArgs = { roomId, roomType };
+      const socketRoomId = `${roomName}:${roomType}:${roomId}`;
+
+      // Envoi de l'événement Websocket
+      req.app.get('io').to(socketRoomId).emit('newMessage', {
+        room: { roomName, roomArgs },
+        updatedMessage,
+        author: user,
+      });
+
       return res.status(200).json(updatedMessage);
     } catch (err) {
       return next({
@@ -104,6 +146,38 @@ export default {
       if (!deletedMessage) {
         return res.status(404).json({ message: 'Message not found' });
       }
+
+      let roomType;
+      let roomId;
+
+      if (deletedMessage.conversationId) {
+        roomType = 'private';
+        roomId = deletedMessage.conversationId;
+      } else if (deletedMessage.channelId) {
+        roomType = 'channel';
+        roomId = deletedMessage.channelId;
+      } else if (deletedMessage.teamId) {
+        roomType = 'team';
+        roomId = deletedMessage.teamId;
+      } else {
+        return next({
+          status: 500,
+          message: 'Internal database error',
+          error: 'Message has no roomType or roomId',
+        });
+      }
+
+      // Préparation des données pour l'événement Websocket
+      const roomName = 'message';
+      const roomArgs = { roomId, roomType };
+      const socketRoomId = `${roomName}:${roomType}:${roomId}`;
+
+      // Envoi de l'événement Websocket
+      req.app.get('io').to(socketRoomId).emit('newMessage', {
+        room: { roomName, roomArgs },
+        deletedMessage,
+        author: user,
+      });
 
       return res.status(200).json(deletedMessage);
     } catch (err) {
