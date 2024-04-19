@@ -141,15 +141,10 @@ const roomService = {
       return null;
     }
 
-    const updatedMessage = mongoClient.message.update({
+    return mongoClient.message.update({
       where: { id: message.id },
-      data: { content },
+      data: { content, updatedAt: new Date() },
     });
-
-    return {
-      ...updatedMessage,
-      date: Date.now(),
-    };
   },
 
   /**
@@ -173,15 +168,12 @@ const roomService = {
 
     const deletedMessage = await mongoClient.message.update({
       where: { id: messageId },
-      data: { deleted: true },
+      data: { deleted: true, updatedAt: new Date() },
     });
 
     deletedMessage.content = 'This message has been deleted';
 
-    return {
-      ...deletedMessage,
-      date: Date.now(),
-    };
+    return deletedMessage;
   },
 
   /**
