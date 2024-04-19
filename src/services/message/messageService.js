@@ -141,10 +141,15 @@ const roomService = {
       return null;
     }
 
-    return mongoClient.message.update({
+    const updatedMessage = mongoClient.message.update({
       where: { id: message.id },
       data: { content },
     });
+
+    return {
+      ...updatedMessage,
+      date: Date.now(),
+    };
   },
 
   /**
@@ -173,7 +178,10 @@ const roomService = {
 
     deletedMessage.content = 'This message has been deleted';
 
-    return deletedMessage;
+    return {
+      ...deletedMessage,
+      date: Date.now(),
+    };
   },
 
   /**
