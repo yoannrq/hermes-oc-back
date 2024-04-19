@@ -20,6 +20,7 @@ model Message {
   conversationId  Int?    @map("cId")
   teamId          Int?    @map("tId")
   channelId       Int?    @map("chId")
+  updatedAt       DateTime? @map("uAt")
 
   sourceMessage Message?     @relation("repliedMessage", fields: [sourceMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   responses     Message[]    @relation("repliedMessage")
