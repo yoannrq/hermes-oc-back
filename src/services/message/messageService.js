@@ -241,12 +241,18 @@ const roomService = {
         [roomIdField]: true,
         content: true,
         authorId: true,
+        updatedAt: true,
       },
       orderBy: { id: 'desc' },
     });
 
     if (lastMessage) {
-      const date = getDateFromMongoObject(lastMessage);
+      let date;
+      if (lastMessage.updatedAt) {
+        date = lastMessage.updatedAt;
+      } else {
+        date = getDateFromMongoObject(lastMessage);
+      }
       lastMessage = {
         ...lastMessage,
         date,
