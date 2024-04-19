@@ -1,5 +1,6 @@
 import socketRoomSchema from '../../utils/validation/socketRoomSchema.js';
 import messageService from '../../services/message/messageService.js';
+import joinSocketRoomMethod from '../socketUtils/joinSocketRoomMethod.js';
 
 export default {
   joinMessageRoom(io, socket) {
@@ -10,7 +11,7 @@ export default {
       const roomName = 'message';
 
       // Vérification du schéma des arguments de la room
-      const { success, data, error } = socketRoomSchema.safeParse(roomType, roomId);
+      const { success, data, error } = socketRoomSchema.safeParse({ roomType, roomId });
       if (!success) {
         if (callback) {
           callback({
@@ -22,7 +23,7 @@ export default {
         return;
       }
 
-      const roomArgs = { data };
+      const roomArgs = data;
 
       const canAccessRoom = await messageService.canAccessRoom({
         roomType,
@@ -40,20 +41,7 @@ export default {
         return;
       }
 
-      const socketRoomId = `${roomName}:${roomType}:${roomId}`;
-      socket.join(socketRoomId);
-
-      socket.to(socketRoomId).emit('userJoinRoom', {
-        room: { roomName, roomArgs },
-        user,
-      });
-
-      console.log(`${user.id} has join 'message:${roomType}:${roomId}'`);
-
-      callback({
-        success: true,
-        message: `${user.id} has join 'message:${roomType}:${roomId}'`,
-      });
+      joinSocketRoomMethod(socket, roomName, roomArgs, callback);
     };
   },
 

@@ -1,4 +1,3 @@
-import postgresClient from '../../models/postgresClient.js';
 import mongoClient from '../../models/mongoClient.js';
 
 import teamService from './messageServices/messageTeamService.js';
@@ -239,6 +238,14 @@ const roomService = {
       },
       orderBy: { id: 'desc' },
     });
+
+    if (lastMessage) {
+      const date = getDateFromMongoObject(lastMessage);
+      lastMessage = {
+        ...lastMessage,
+        date,
+      };
+    }
 
     const lastMessageRead = await mongoClient.lastMessageRead.findFirst({
       where: {

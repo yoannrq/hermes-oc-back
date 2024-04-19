@@ -8,6 +8,7 @@ export default z.object({
     },
     invalid_type_error: "The field 'content' must be a string.",
   })
+    .trim() // Supprime les espaces, tabulations et sauts de ligne au début et à la fin
     .min(1, {
       message: {
         value: "The field 'content' must be at least 1 character long.",
