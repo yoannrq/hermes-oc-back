@@ -87,7 +87,6 @@ export default {
         content,
       });
 
-      console.log(updatedMessage);
       if (!updatedMessage) {
         return res.status(404).json({ message: 'Message not found' });
       }
