@@ -117,7 +117,7 @@ export default {
       const socketRoomId = `${roomName}:${roomType}:${roomId}`;
 
       // Envoi de l'événement Websocket
-      req.app.get('io').to(socketRoomId).emit('newMessage', {
+      req.app.get('io').to(socketRoomId).emit('updatedMessage', {
         room: { roomName, roomArgs },
         updatedMessage,
         author: user,
@@ -173,7 +173,7 @@ export default {
       const socketRoomId = `${roomName}:${roomType}:${roomId}`;
 
       // Envoi de l'événement Websocket
-      req.app.get('io').to(socketRoomId).emit('newMessage', {
+      req.app.get('io').to(socketRoomId).emit('deletedMessage', {
         room: { roomName, roomArgs },
         deletedMessage,
         author: user,
