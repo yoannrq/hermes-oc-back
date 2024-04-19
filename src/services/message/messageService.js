@@ -77,6 +77,7 @@ const roomService = {
         content: message.deleted ? 'This message has been deleted' : message.content,
         date: getDateFromMongoObject(message),
         deleted: message.deleted,
+        updatedAt: message.updatedAt,
       }));
     }
 
