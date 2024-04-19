@@ -142,10 +142,15 @@ const roomService = {
       return null;
     }
 
-    return mongoClient.message.update({
+    const updatedMessage = mongoClient.message.update({
       where: { id: message.id },
       data: { content, updatedAt: new Date() },
     });
+
+    return {
+      ...updatedMessage,
+      date: getDateFromMongoObject(updatedMessage),
+    };
   },
 
   /**
