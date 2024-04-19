@@ -9,9 +9,8 @@ import privateRouter from './privateRouter.js';
 
 const router = express.Router();
 
+// Routes
 router.use('/privates', privateRouter);
-
-// Routes messages
 router.use('/messages', messageRouter);
 router.use('/patients', patientRouter);
 router.use('/socketIds', socketRouter);
