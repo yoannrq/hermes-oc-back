@@ -1,6 +1,39 @@
 import socketRoomSchema from '../../utils/validation/socketRoomSchema.js';
 import messageService from '../../services/message/messageService.js';
-import joinSocketRoomMethod from '../socketUtils/joinSocketRoomMethod.js';
+
+function joinRoom(io, socket, socketRoomId, roomName, roomArgs, callback) {
+  const { user } = socket.locals;
+  socket.join(socketRoomId);
+
+  socket.to(socketRoomId).emit('userJoinRoom', {
+    room: { roomName, roomArgs },
+    user,
+  });
+
+  console.log(`${user.id} has join '${socketRoomId}'`);
+
+  callback({
+    success: true,
+    message: `${user.id} has join '${socketRoomId}'`,
+  });
+}
+
+function leaveRoom(io, socket, socketRoomId, roomName, roomArgs, callback) {
+  const { user } = socket.locals;
+  socket.leave(socketRoomId);
+
+  socket.to(socketRoomId).emit('userLeaveRoom', {
+    room: { roomName, roomArgs },
+    user,
+  });
+
+  console.log(`${user.id} has left '${socketRoomId}'`);
+
+  callback({
+    success: true,
+    message: `${user.id} has left '${socketRoomId}'`,
+  });
+}
 
 export default {
   joinMessageRoom(io, socket) {
@@ -8,9 +41,6 @@ export default {
       const { user } = socket.locals;
       const { roomType, roomId } = args;
 
-      const roomName = 'message';
-
-      // Vérification du schéma des arguments de la room
       const { success, data, error } = socketRoomSchema.safeParse({ roomType, roomId });
       if (!success) {
         if (callback) {
@@ -22,8 +52,6 @@ export default {
         }
         return;
       }
-
-      const roomArgs = data;
 
       const canAccessRoom = await messageService.canAccessRoom({
         roomType,
@@ -41,42 +69,33 @@ export default {
         return;
       }
 
-      joinSocketRoomMethod(socket, roomName, roomArgs, callback);
+      const roomName = 'message';
+      const roomArgs = data;
+      const roomSocketId = `${roomName}:${roomType}:${roomId}`;
+
+      joinRoom(io, socket, roomSocketId, roomName, roomArgs, callback);
     };
   },
 
   leaveMessageRoom(io, socket) {
     return ({ roomType, roomId }, callback) => {
-      const { user } = socket.locals;
-
-      const roomName = 'message';
       const { success, data, error } = socketRoomSchema.safeParse({ roomId, roomType });
 
       if (!success) {
         if (callback) {
           callback({
+            success: false,
+            message: 'Schema validation error.',
             errors: error.errors,
           });
         }
         return;
       }
 
+      const roomName = 'message';
       const roomArgs = { data };
       const socketRoomId = `${roomName}:${roomType}:${roomId}`;
-      socket.leave(socketRoomId);
-
-      socket.to(socketRoomId).emit('userJoinRoom', {
-        room: { roomName, roomArgs },
-        user,
-      });
-
-      console.log(`${user.id} has left 'message:${roomType}:${roomId}'`);
-
-      if (callback) {
-        callback({
-          message: `${user.id} has left 'message:${roomType}:${roomId}'`,
-        });
-      }
+      leaveRoom(io, socket, socketRoomId, roomName, roomArgs, callback);
     };
   },
 
