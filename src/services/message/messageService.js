@@ -108,7 +108,7 @@ const roomService = {
     this.checkInvalidRoomType(roomType);
     const { roomIdField } = this[roomType];
 
-    const newMessage = mongoClient.message.create({
+    const newMessage = await mongoClient.message.create({
       data: {
         [roomIdField]: roomId,
         authorId,
@@ -142,7 +142,7 @@ const roomService = {
       return null;
     }
 
-    const updatedMessage = mongoClient.message.update({
+    const updatedMessage = await mongoClient.message.update({
       where: { id: message.id },
       data: { content, updatedAt: new Date() },
     });

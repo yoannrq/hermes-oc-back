@@ -87,10 +87,12 @@ export default {
         content,
       });
 
+      console.log(updatedMessage);
       if (!updatedMessage) {
         return res.status(404).json({ message: 'Message not found' });
       }
 
+      // TODO Passer ce bloc dans le message service
       let roomType;
       let roomId;
 
