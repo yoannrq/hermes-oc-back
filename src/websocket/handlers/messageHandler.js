@@ -1,11 +1,13 @@
 export default {
   joinMessageRoom(io, socket) {
-    return ({ roomType, roomId }, callback) => {
+    return (args, callback) => {
+      const { roomId, roomType } = args;
       const { user } = socket.locals;
 
       const roomName = 'message';
       const roomArgs = { roomId, roomType };
       const socketRoomId = `${roomName}:${roomType}:${roomId}`;
+
       socket.join(socketRoomId);
 
       socket.to(socketRoomId).emit('userJoinRoom', {
@@ -15,15 +17,18 @@ export default {
 
       console.log(`${user.id} has join 'message:${roomType}:${roomId}'`);
 
-      callback({
-        success: true,
-        message: `${user.id} has join 'message:${roomType}:${roomId}'`,
-      });
+      if (callback) {
+        callback({
+          success: true,
+          message: `${user.id} has join 'message:${roomType}:${roomId}'`,
+        });
+      }
     };
   },
 
   leaveMessageRoom(io, socket) {
-    return ({ roomType, roomId }, callback) => {
+    return (args, callback) => {
+      const { roomType, roomId } = args;
       const { user } = socket.locals;
 
       const roomName = 'message';
@@ -38,9 +43,11 @@ export default {
 
       console.log(`${user.id} has left 'message:${roomType}:${roomId}'`);
 
-      callback({
-        message: `${user.id} has left 'message:${roomType}:${roomId}'`,
-      });
+      if (callback) {
+        callback({
+          message: `${user.id} has left 'message:${roomType}:${roomId}'`,
+        });
+      }
     };
   },
 
