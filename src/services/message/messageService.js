@@ -29,7 +29,12 @@ const roomService = {
    *
    * */
   async getMessagesWithPagination({
-    roomType, roomId, page = 1, pageSize = 50, originTimestamp = Date.now(), timelineDirection = 'older',
+    roomType,
+    roomId,
+    page = 1,
+    pageSize = 50,
+    originTimestamp = Date.now(),
+    timelineDirection = 'older',
   }) {
     this.checkInvalidRoomType(roomType);
     const { roomIdField } = this[roomType];
@@ -102,9 +107,7 @@ const roomService = {
    * @param {string} content The content of the message
    * @returns {Promise<object>} The created message
    * */
-  async createMessage({
-    roomType, roomId, authorId, content,
-  }) {
+  async createMessage({ roomType, roomId, authorId, content }) {
     this.checkInvalidRoomType(roomType);
     const { roomIdField } = this[roomType];
 
@@ -190,9 +193,7 @@ const roomService = {
    * @param {number} userId The ID of the user reading the message
    * @param {number} messageId The ID of the last message read
    * */
-  async updateLastMessageRead({
-    roomType, roomId, userId, messageId,
-  }) {
+  async updateLastMessageRead({ roomType, roomId, userId, messageId }) {
     this.checkInvalidRoomType(roomType);
     const { roomIdField } = this[roomType];
 
@@ -281,7 +282,7 @@ const roomService = {
       }
       unreadMessagesCount = await mongoClient.message.count({
         where: {
-          id: { gt: lastMessageRead.id },
+          id: { gt: lastMessageRead.messageId },
           [roomIdField]: roomId,
         },
       });
