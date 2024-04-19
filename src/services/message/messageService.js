@@ -107,7 +107,7 @@ const roomService = {
     this.checkInvalidRoomType(roomType);
     const { roomIdField } = this[roomType];
 
-    return mongoClient.message.create({
+    const newMessage = mongoClient.message.create({
       data: {
         [roomIdField]: roomId,
         authorId,
@@ -115,6 +115,11 @@ const roomService = {
         deleted: false,
       },
     });
+
+    return {
+      ...newMessage,
+      date: getDateFromMongoObject(newMessage),
+    };
   },
 
   /**
