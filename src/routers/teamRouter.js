@@ -110,7 +110,7 @@ router.post('/', teamController.newTeam);
 
 /**
  * @swagger
- * /api/teams/{id}:
+ * /api/me/teams/{id}:
  *   get:
  *     summary: Get a team by ID.
  *     tags:
@@ -142,7 +142,7 @@ router.get('/:id', teamController.getOneTeam);
 
 /**
  * @swagger
- * /api/teams/{id}:
+ * /api/me/teams/{id}:
  *   patch:
  *     summary: Update a team by ID.
  *     tags:
@@ -182,7 +182,35 @@ router.patch('/:id', teamController.updateTeam);
 
 /**
  * @swagger
- * /api/teams/{id}/users:
+ * /api/me/teams/{id}:
+ *   delete:
+ *     summary: Delete a team by ID.
+ *     tags:
+ *       - team
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the team to delete.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '204':
+ *         description: Successfully deleted team.
+ *       '404':
+ *         description: Team not found.
+ *       '401':
+ *         description: Unauthorized (e.g., invalid or missing authentication token)
+ *       '500':
+ *         description: Internal server error (e.g., could not delete the team due to server error)
+ * */
+router.delete('/:id', teamController.deleteTeam);
+
+/**
+ * @swagger
+ * /api/me/teams/{id}/users:
  *   get:
  *     summary: Get teammates for the specified team.
  *     tags:
@@ -235,7 +263,7 @@ router.get('/:id/users', teamController.getTeammates);
 
 /**
  * @swagger
- * /api/teams/{teamId}/users/{userId}:
+ * /api/me/teams/{teamId}/users/{userId}:
  *   post:
  *     summary: Add a teammate to a team.
  *     tags:
@@ -306,7 +334,7 @@ router.post('/:teamId/users/:userId', teamController.addTeammate);
 
 /**
  * @swagger
- * /api/teams/{teamId}/users/{userId}:
+ * /api/me/teams/{teamId}/users/{userId}:
  *   delete:
  *     summary: Remove a teammate from a team.
  *     tags:
