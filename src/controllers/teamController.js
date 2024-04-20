@@ -2,7 +2,6 @@ import postgresClient from '../models/postgresClient.js';
 import messageService from '../services/message/messageService.js';
 
 export default {
-
   // obtenir les ids des conversations pour un user fournis ainsi que le dernier le message.
   // GET /api/me/teams
   getTeams: async (req, res, next) => {
@@ -57,14 +56,16 @@ export default {
   // POST /api/me/teams
   newTeam: async (req, res, next) => {
     const { user } = res.locals;
-    const { teamName, teamColor, teamProfilePictureUrl } = req.body;
+
+    // Todo: validate user input with Joi
+    const { name, color, profilePictureUrl } = req.body;
 
     try {
       const team = await postgresClient.team.create({
         data: {
-          name: teamName,
-          profilePictureUrl: teamProfilePictureUrl,
-          color: teamColor,
+          name,
+          profilePictureUrl,
+          color,
           ownerId: user.id,
           users: { connect: { id: user.id } },
         },
@@ -117,7 +118,9 @@ export default {
   updateTeam: async (req, res, next) => {
     const { user } = res.locals;
     const teamId = parseInt(req.params.id, 10);
-    const { teamName, teamColor, teamProfilePictureUrl } = req.body;
+
+    // Todo: validate user input with Joi
+    const { name, color, profilePictureUrl } = req.body;
 
     try {
       const updatedTeam = await postgresClient.team.update({
@@ -126,9 +129,9 @@ export default {
           users: { some: { id: user.id } },
         },
         data: {
-          name: teamName,
-          profilePictureUrl: teamProfilePictureUrl,
-          color: teamColor,
+          name,
+          profilePictureUrl,
+          color,
           ownerId: user.id,
         },
       });
@@ -223,5 +226,4 @@ export default {
       });
     }
   },
-
 };
