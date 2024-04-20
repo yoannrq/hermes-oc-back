@@ -170,7 +170,7 @@ export default {
     const teamId = parseInt(req.params.id, 10);
 
     try {
-      const deletedTeam = await postgresClient.team.delete({
+      const teamToDelete = await postgresClient.team.findFirst({
         where: {
           id: teamId,
           users: {
@@ -181,12 +181,18 @@ export default {
         },
       });
 
-      if (!deletedTeam) {
+      if (!teamToDelete) {
         return next({
           status: 404,
           message: 'Team not found',
         });
       }
+
+      const deletedTeam = await postgresClient.team.delete({
+        where: {
+          id: teamId,
+        },
+      });
 
       return res.status(200).json({
         deleted: true,
