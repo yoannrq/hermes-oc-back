@@ -72,6 +72,67 @@ router.get('/', privateController.getPrivates);
 
 /**
  * @swagger
+ * /api/me/privates/{privateId}:
+ *   get:
+ *     summary: Get private
+ *     tags:
+ *       - private
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: privateId
+ *         required: true
+ *         description: The private identifier
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Private found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 conversationId:
+ *                   type: integer
+ *                   description: The unique identifier of the private
+ *                 receiver:
+ *                   type: object
+ *                   description: Information about the other user in the private
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: The unique identifier of the user
+ *                     email:
+ *                       type: string
+ *                       description: The email address of the user
+ *                     firstname:
+ *                       type: string
+ *                       description: The first name of the user
+ *                     lastname:
+ *                       type: string
+ *                       description: The last name of the user
+ *                     profilePictureUrl:
+ *                       type: string
+ *                       format: uri
+ *                       description: The URL to the user's profile picture
+ *                 messages:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/message'
+ *                   description: The messages in the private
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Private not found
+ *       500:
+ *         description: Internal server error
+ * */
+router.get('/:privateId', privateController.getOnePrivate);
+
+/**
+ * @swagger
  * /api/me/privates:
  *   post:
  *     summary: New private
