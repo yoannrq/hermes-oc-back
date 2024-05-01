@@ -2,10 +2,9 @@ import postgresClient from '../models/postgresClient.js';
 import messageService from '../services/message/messageService.js';
 
 export default {
-
   // obtenir les ids des conversations pour un user fournis ainsi que le dernier le message.
   // GET /api/me/teams
-  getTeams: async (req, res, next) => {
+  async getTeams(req, res, next) {
     const { user } = res.locals;
     try {
       const teams = await postgresClient.team.findMany({
@@ -18,7 +17,9 @@ export default {
         },
         where: {
           users: {
-            some: { id: user.id },
+            some: {
+              id: user.id,
+            },
           },
         },
       });
@@ -55,16 +56,18 @@ export default {
 
   // Créer une équipe avec les utilisateurs fournis dans le body
   // POST /api/me/teams
-  newTeam: async (req, res, next) => {
+  async newTeam(req, res, next) {
     const { user } = res.locals;
-    const { teamName, teamColor, teamProfilePictureUrl } = req.body;
+
+    // Todo: validate user input with Joi
+    const { name, color, profilePictureUrl } = req.body;
 
     try {
       const team = await postgresClient.team.create({
         data: {
-          name: teamName,
-          profilePictureUrl: teamProfilePictureUrl,
-          color: teamColor,
+          name,
+          profilePictureUrl,
+          color,
           ownerId: user.id,
           users: { connect: { id: user.id } },
         },
@@ -76,7 +79,7 @@ export default {
     } catch (error) {
       return next({
         status: 400,
-        message: 'Bad request',
+        message: 'Internal Server Error',
         error,
       });
     }
@@ -84,7 +87,7 @@ export default {
 
   // Obtenir les données d'une équipe (id fourni), inclure les utilisateurs qui la compose
   // GET /api/me/teams/:team-id
-  getOneTeam: async (req, res, next) => {
+  async getOneTeam(req, res, next) {
     const teamId = parseInt(req.params.id, 10);
 
     if (teamId.isNaN) {
@@ -95,13 +98,24 @@ export default {
     }
 
     try {
-      const team = await postgresClient.team.findFirst({ where: { id: teamId } });
+      const team = await postgresClient.team.findFirst({
+        where: {
+          id: teamId,
+          users: {
+            some: {
+              id: res.locals.user.id,
+            },
+          },
+        },
+      });
+
       if (!team) {
         return next({
           status: 404,
           message: 'Team not found',
         });
       }
+
       return res.status(200).json({ ...team });
     } catch (error) {
       return next({
@@ -114,21 +128,27 @@ export default {
 
   // Modifier une équipe (id fourni)
   // PATCH /api/me/teams/:team-id
-  updateTeam: async (req, res, next) => {
+  async updateTeam(req, res, next) {
     const { user } = res.locals;
     const teamId = parseInt(req.params.id, 10);
-    const { teamName, teamColor, teamProfilePictureUrl } = req.body;
+
+    // Todo: validate user input with Joi
+    const { name, color, profilePictureUrl } = req.body;
 
     try {
       const updatedTeam = await postgresClient.team.update({
         where: {
           id: teamId,
-          users: { some: { id: user.id } },
+          users: {
+            some: {
+              id: user.id,
+            },
+          },
         },
         data: {
-          name: teamName,
-          profilePictureUrl: teamProfilePictureUrl,
-          color: teamColor,
+          name,
+          profilePictureUrl,
+          color,
           ownerId: user.id,
         },
       });
@@ -145,24 +165,85 @@ export default {
     }
   },
 
-  // Liste des utilisateurs de notre équipe. (id fourni)
-  // GET /api/me/teams/:team-id/users
-  getTeammates: async (req, res, next) => {
+  async deleteTeam(req, res, next) {
+    const { user } = res.locals;
     const teamId = parseInt(req.params.id, 10);
 
     try {
-      const teammates = await postgresClient.user.findMany({
-        select: {
-          id: true,
-          email: true,
-          firstname: true,
-          lastname: true,
-          rppsCode: true,
-          profilePictureUrl: true,
+      const teamToDelete = await postgresClient.team.findFirst({
+        where: {
+          id: teamId,
+          users: {
+            some: {
+              id: user.id,
+            },
+          },
         },
-        where: { teams: { some: { id: teamId } } },
       });
-      return res.status(200).json(teammates);
+
+      if (!teamToDelete) {
+        return next({
+          status: 404,
+          message: 'Team not found',
+        });
+      }
+
+      const deletedTeam = await postgresClient.team.delete({
+        where: {
+          id: teamId,
+        },
+      });
+
+      return res.status(200).json({
+        deleted: true,
+        ...deletedTeam,
+      });
+    } catch (error) {
+      return next({
+        status: 400,
+        message: 'Internal Server Error',
+        error,
+      });
+    }
+  },
+
+  // Liste des utilisateurs de notre équipe. (id fourni)
+  // GET /api/me/teams/:team-id/users
+  async getTeammates(req, res, next) {
+    const teamId = parseInt(req.params.id, 10);
+
+    try {
+      const team = await postgresClient.team.findFirst({
+        where: {
+          id: teamId,
+          users: {
+            some: {
+              id: res.locals.user.id,
+            },
+          },
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              email: true,
+              firstname: true,
+              lastname: true,
+              rppsCode: true,
+              profilePictureUrl: true,
+            },
+          },
+        },
+      });
+
+      if (!team) {
+        return next({
+          status: 404,
+          message: 'Team not found',
+        });
+      }
+
+      return res.status(200).json(team.users);
     } catch (error) {
       return next({
         status: 500,
@@ -174,17 +255,37 @@ export default {
 
   // Ajoute un utilisateur à notre équipe.
   // POST /api/me/teams/:team-id/users/:user-id
-  addTeammate: async (req, res, next) => {
+  async addTeammate(req, res, next) {
     let { teamId, userId } = req.params;
     teamId = parseInt(teamId, 10);
     userId = parseInt(userId, 10);
-    // console.log('teamId : ', teamId);
-    // console.log('userId : ', userId);
+
     try {
       const updatedTeam = await postgresClient.team.update({
-        where: { id: teamId },
-        data: { users: { connect: { id: userId } } },
+        where: {
+          id: teamId,
+          users: {
+            some: {
+              id: res.locals.user.id,
+            },
+          },
+        },
+        data: {
+          users: {
+            connect: {
+              id: userId,
+            },
+          },
+        },
       });
+
+      if (!updatedTeam) {
+        return next({
+          status: 404,
+          message: 'Team not found',
+        });
+      }
+
       return res.status(201).json({
         added: true,
         userId,
@@ -193,7 +294,7 @@ export default {
     } catch (error) {
       return next({
         status: 400,
-        message: 'Bad request',
+        message: 'Internal Server Error',
         error,
       });
     }
@@ -201,15 +302,37 @@ export default {
 
   // Enlève un utilisateur à notre équipe.
   // DELETE /api/me/teams/:team-id/users/:user-id
-  removeTeammate: async (req, res, next) => {
+  async removeTeammate(req, res, next) {
     let { teamId, userId } = req.params;
     teamId = parseInt(teamId, 10);
     userId = parseInt(userId, 10);
+
     try {
       const updatedTeam = await postgresClient.team.update({
-        where: { id: teamId },
-        data: { users: { disconnect: { id: userId } } },
+        where: {
+          id: teamId,
+          users: {
+            some: {
+              id: res.locals.user.id,
+            },
+          },
+        },
+        data: {
+          users: {
+            disconnect: {
+              id: userId,
+            },
+          },
+        },
       });
+
+      if (!updatedTeam) {
+        return next({
+          status: 404,
+          message: 'Team not found',
+        });
+      }
+
       return res.status(200).json({
         deleted: true,
         userId,
@@ -218,10 +341,9 @@ export default {
     } catch (error) {
       return next({
         status: 400,
-        message: 'Bad request',
+        message: 'Internal Server Error',
         error,
       });
     }
   },
-
 };

@@ -52,12 +52,73 @@ export default {
           const roomInfo = roomsInfoById[privateConversation.id];
 
           return {
-            privateConversationid: privateConversation.id,
+            privateId: privateConversation.id,
             receiver: privateConversation.users[0],
             ...roomInfo,
           };
         }),
       );
+    } catch (err) {
+      return next({
+        status: 500,
+        message: 'Internal server error',
+        error: err,
+      });
+    }
+  },
+
+  async getOnePrivate(req, res, next) {
+    const { user } = res.locals;
+
+    const privateId = parseInt(req.params.privateId, 10);
+
+    try {
+      const privateConversation = await postgresClient.conversation.findFirst({
+        where: {
+          id: privateId,
+          users: {
+            some: {
+              id: user.id,
+            },
+          },
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              email: true,
+              firstname: true,
+              lastname: true,
+              profilePictureUrl: true,
+              rppsCode: true,
+            },
+            where: {
+              id: {
+                not: user.id,
+              },
+            },
+          },
+        },
+      });
+
+      if (!privateConversation) {
+        return next({
+          status: 404,
+          message: 'Private not found',
+        });
+      }
+
+      const roomInfo = await messageService.getRoomInfo({
+        roomType: 'private',
+        roomId: privateId,
+        userId: user.id,
+      });
+
+      return res.json({
+        privateId,
+        receiver: privateConversation.users[0],
+        ...roomInfo,
+      });
     } catch (err) {
       return next({
         status: 500,

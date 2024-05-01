@@ -91,6 +91,7 @@ export default {
         return res.status(404).json({ message: 'Message not found' });
       }
 
+      // TODO Passer ce bloc dans le message service
       let roomType;
       let roomId;
 

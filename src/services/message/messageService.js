@@ -29,7 +29,12 @@ const roomService = {
    *
    * */
   async getMessagesWithPagination({
-    roomType, roomId, page = 1, pageSize = 50, originTimestamp = Date.now(), timelineDirection = 'older',
+    roomType,
+    roomId,
+    page = 1,
+    pageSize = 50,
+    originTimestamp = Date.now(),
+    timelineDirection = 'older',
   }) {
     this.checkInvalidRoomType(roomType);
     const { roomIdField } = this[roomType];
@@ -77,6 +82,7 @@ const roomService = {
         content: message.deleted ? 'This message has been deleted' : message.content,
         date: getDateFromMongoObject(message),
         deleted: message.deleted,
+        updatedAt: message.updatedAt,
       }));
     }
 
@@ -101,13 +107,11 @@ const roomService = {
    * @param {string} content The content of the message
    * @returns {Promise<object>} The created message
    * */
-  async createMessage({
-    roomType, roomId, authorId, content,
-  }) {
+  async createMessage({ roomType, roomId, authorId, content }) {
     this.checkInvalidRoomType(roomType);
     const { roomIdField } = this[roomType];
 
-    const newMessage = mongoClient.message.create({
+    const newMessage = await mongoClient.message.create({
       data: {
         [roomIdField]: roomId,
         authorId,
@@ -141,10 +145,15 @@ const roomService = {
       return null;
     }
 
-    return mongoClient.message.update({
+    const updatedMessage = await mongoClient.message.update({
       where: { id: message.id },
       data: { content, updatedAt: new Date() },
     });
+
+    return {
+      ...updatedMessage,
+      date: getDateFromMongoObject(updatedMessage),
+    };
   },
 
   /**
@@ -184,9 +193,7 @@ const roomService = {
    * @param {number} userId The ID of the user reading the message
    * @param {number} messageId The ID of the last message read
    * */
-  async updateLastMessageRead({
-    roomType, roomId, userId, messageId,
-  }) {
+  async updateLastMessageRead({ roomType, roomId, userId, messageId }) {
     this.checkInvalidRoomType(roomType);
     const { roomIdField } = this[roomType];
 
@@ -240,12 +247,18 @@ const roomService = {
         [roomIdField]: true,
         content: true,
         authorId: true,
+        updatedAt: true,
       },
       orderBy: { id: 'desc' },
     });
 
     if (lastMessage) {
-      const date = getDateFromMongoObject(lastMessage);
+      let date;
+      if (lastMessage.updatedAt) {
+        date = lastMessage.updatedAt;
+      } else {
+        date = getDateFromMongoObject(lastMessage);
+      }
       lastMessage = {
         ...lastMessage,
         date,
@@ -269,7 +282,7 @@ const roomService = {
       }
       unreadMessagesCount = await mongoClient.message.count({
         where: {
-          id: { gt: lastMessageRead.id },
+          id: { gt: lastMessageRead.messageId },
           [roomIdField]: roomId,
         },
       });

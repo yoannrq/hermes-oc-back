@@ -4,7 +4,6 @@ export default {
   async getUser(req, res, next) {
     // const { user } = res.locals; --> utilisateur connecté
     const userId = parseInt(req.query.userId, 10);
-    console.log('userId: ', userId);
     try {
       const user = await postgresClient.user.findFirst({
         where: {

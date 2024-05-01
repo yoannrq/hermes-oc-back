@@ -26,9 +26,7 @@ export default {
         });
       }
 
-      const {
-        email, firstname, lastname, password, rppsCode,
-      } = data;
+      const { email, firstname, lastname, password, rppsCode } = data;
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -100,7 +98,7 @@ export default {
       // Ajouter le token dans un cookie
       const cookieOptions = {
         httpOnly: true, // Le cookie n'est pas accessible via JavaScript côté client
-        secure: process.env.NODE_ENV === 'production', // En production, envoyer le cookie uniquement sur HTTPS
+        secure: process.env.NODE_ENV !== 'production', // En production, envoyer le cookie uniquement sur HTTPS
         maxAge: ONE_HOUR, // Durée de vie du cookie 1 heure
         sameSite: 'strict', // Le cookie est envoyé uniquement pour les requêtes du même site
       };
