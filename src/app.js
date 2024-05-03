@@ -12,6 +12,9 @@ import cookieParser from 'cookie-parser';
 import apiRouter from './routers/apiRouter.js';
 import errorHandler from './middlewares/errorHandler.js';
 
+// Configuration des chemins de répertoires pour les modules ES :
+// - `__dirname` est défini manuellement en utilisant `fileURLToPath` pour obtenir le répertoire du fichier courant (non prédéfini dans les modules ES contrairement à CommonJS).
+// - `STATIC_DIR` est configuré pour pointer vers le dossier 'dist' du projet front-end, où les fichiers statiques sont servis. Cette configuration assure le service correct des fichiers front-end depuis l'URL racine '/'.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STATIC_DIR = path.join(__dirname, '../../projet-05-hermes-front/dist');
 

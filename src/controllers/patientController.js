@@ -6,78 +6,94 @@ import formatingName from '../utils/formatingFunctions/formatingName.js';
 import userSchema from '../utils/validation/userSchema.js';
 
 export default {
-  async getPatients(req, res) {
+  async getPatients(req, res, next) {
     const { user } = res.locals;
 
-    const patientsWithChannels = await postgresClient.patient.findMany({
-      where: {
-        users: {
-          some: {
-            id: user.id,
+    try {
+      const patientsWithChannels = await postgresClient.patient.findMany({
+        where: {
+          users: {
+            some: {
+              id: user.id,
+            },
           },
         },
-      },
-      include: {
-        channels: true,
-      },
-    });
+        include: {
+          channels: true,
+        },
+      });
 
-    const patientInfoById = {};
-    await Promise.all(
-      patientsWithChannels.map(async (patient) => {
-        let lastMessage = null;
-        let unreadMessagesCount = 0;
-        await Promise.all(patient.channels.map(async (channel) => {
-          const roomInfo = await messageService.getRoomInfo({
-            roomType: 'channel',
-            roomId: channel.id,
-            userId: user.id,
-          });
+      const patientInfoById = {};
+      await Promise.all(
+        patientsWithChannels.map(async (patient) => {
+          let lastMessage = null;
+          let unreadMessagesCount = 0;
+          await Promise.all(patient.channels.map(async (channel) => {
+            const roomInfo = await messageService.getRoomInfo({
+              roomType: 'channel',
+              roomId: channel.id,
+              userId: user.id,
+            });
 
-          // Récupère la date du dernier message afin de pouvoir la comparer
-          const timestampFromCurrentObject = getDateFromMongoObject(roomInfo.lastMessage.id);
-          const roomInfoWithDate = {
-            ...roomInfo.lastMessage,
-            timestamp: timestampFromCurrentObject,
+            // Récupère la date du dernier message afin de pouvoir la comparer
+            const timestampFromCurrentObject = getDateFromMongoObject(roomInfo.lastMessage.id);
+            const roomInfoWithDate = {
+              ...roomInfo.lastMessage,
+              timestamp: timestampFromCurrentObject,
+            };
+
+            // Vérifie si le message actuel est plus récent que le dernier message connu
+            if (lastMessage === null || timestampFromCurrentObject > lastMessage.timestamp) {
+              lastMessage = roomInfoWithDate;
+            }
+
+            // Incrémente le nombre de messages non lus pour le patient
+            unreadMessagesCount += parseInt(roomInfo.unreadMessagesCount, 10);
+          }));
+
+          patientInfoById[patient.id] = {
+            ...patient,
+            lastMessage,
+            unreadMessagesCount,
           };
+        }),
+      );
 
-          // Vérifie si le message actuel est plus récent que le dernier message connu
-          if (lastMessage === null || timestampFromCurrentObject > lastMessage.timestamp) {
-            lastMessage = roomInfoWithDate;
-          }
-
-          // Incrémente le nombre de messages non lus pour le patient
-          unreadMessagesCount += parseInt(roomInfo.unreadMessagesCount, 10);
-        }));
-
-        patientInfoById[patient.id] = {
-          ...patient,
-          lastMessage,
-          unreadMessagesCount,
-        };
-      }),
-    );
-
-    res.status(200).json(patientInfoById);
+      return res.status(200).json(patientInfoById);
+    } catch (err) {
+      return next({
+        status: 500,
+        message: 'Internal server error',
+        error: err,
+      });
+    }
   },
 
   async getPatientById(req, res, next) {
     const { patientId } = req.params;
 
-    const patient = await postgresClient.patient.findFirst({
-      where: {
-        id: parseInt(patientId, 10),
-      },
-    });
+    try {
+      const patient = await postgresClient.patient.findFirst({
+        where: {
+          id: parseInt(patientId, 10),
+        },
+      });
 
-    if (!patient) {
+      if (!patient) {
+        return next({
+          status: 404,
+          message: 'Patient not found.',
+        });
+      }
+
+      return res.status(200).json(patient);
+    } catch (err) {
       return next({
-        status: 404,
-        message: 'Patient not found.',
+        status: 500,
+        message: 'Internal server error',
+        error: err,
       });
     }
-
-    return res.status(200).json(patient);
   },
 
   async createPatient(req, res, next) {
@@ -97,45 +113,53 @@ export default {
       firstname, lastname, birthdate, socialSecurityNumber, phoneNumber, email, address, zipCodeId,
     } = data;
 
+    try {
     // Vérification si le mail ou le numéro de sécurité social existe déjà en BDD
-    const patient = await postgresClient.patient.findFirst({
-      where: {
-        OR: [{ email }, { socialSecurityNumber }],
-      },
-    });
-
-    if (patient) {
-      return next({
-        status: 409,
-        message: 'Patient already exists.',
-        email,
-        socialSecurityNumber,
+      const patient = await postgresClient.patient.findFirst({
+        where: {
+          OR: [{ email }, { socialSecurityNumber }],
+        },
       });
-    }
 
-    const formatedFirstname = formatingName(firstname);
-    const formatedLastname = formatingName(lastname);
-    const formatedBirthdate = new Date(birthdate);
+      if (patient) {
+        return next({
+          status: 409,
+          message: 'Patient already exists.',
+          email,
+          socialSecurityNumber,
+        });
+      }
 
-    const newPatient = await postgresClient.patient.create({
-      data: {
-        firstname: formatedFirstname,
-        lastname: formatedLastname,
-        birthdate: formatedBirthdate,
-        socialSecurityNumber,
-        phoneNumber,
-        email,
-        address,
-        zipCodeId: parseInt(zipCodeId, 10),
-        users: {
-          connect: {
-            id: user.id,
+      const formatedFirstname = formatingName(firstname);
+      const formatedLastname = formatingName(lastname);
+      const formatedBirthdate = new Date(birthdate);
+
+      const newPatient = await postgresClient.patient.create({
+        data: {
+          firstname: formatedFirstname,
+          lastname: formatedLastname,
+          birthdate: formatedBirthdate,
+          socialSecurityNumber,
+          phoneNumber,
+          email,
+          address,
+          zipCodeId: parseInt(zipCodeId, 10),
+          users: {
+            connect: {
+              id: user.id,
+            },
           },
         },
-      },
-    });
+      });
 
-    return res.status(201).json(newPatient);
+      return res.status(201).json(newPatient);
+    } catch (err) {
+      return next({
+        status: 500,
+        message: 'Internal server error',
+        error: err,
+      });
+    }
   },
 
   async updatePatient(req, res, next) {
@@ -163,67 +187,91 @@ export default {
       data.birthdate = new Date(data.birthdate);
     }
 
-    const updatedPatient = await postgresClient.patient.update({
-      where: {
-        id: parseInt(patientId, 10),
-      },
-      data,
-    });
+    try {
+      const updatedPatient = await postgresClient.patient.update({
+        where: {
+          id: parseInt(patientId, 10),
+        },
+        data,
+      });
 
-    return res.status(200).json(updatedPatient);
+      return res.status(200).json(updatedPatient);
+    } catch (err) {
+      return next({
+        status: 500,
+        message: 'Internal server error',
+        error: err,
+      });
+    }
   },
 
-  async getChannelsFromPatientId(req, res) {
+  async getChannelsFromPatientId(req, res, next) {
     const { user } = res.locals;
     const { patientId } = req.params;
 
-    const channels = await postgresClient.channel.findMany({
-      where: {
-        patientId: parseInt(patientId, 10),
-      },
-    });
+    try {
+      const channels = await postgresClient.channel.findMany({
+        where: {
+          patientId: parseInt(patientId, 10),
+        },
+      });
 
-    const channelsWithLastMessage = await Promise.all(
-      channels.map(async (channel) => {
-        const roomInfo = await messageService.getRoomInfo({
-          roomType: 'channel',
-          roomId: channel.id,
-          userId: user.id,
-        });
-        return {
-          ...channel,
-          ...roomInfo,
-        };
-      }),
-    );
+      const channelsWithLastMessage = await Promise.all(
+        channels.map(async (channel) => {
+          const roomInfo = await messageService.getRoomInfo({
+            roomType: 'channel',
+            roomId: channel.id,
+            userId: user.id,
+          });
+          return {
+            ...channel,
+            ...roomInfo,
+          };
+        }),
+      );
 
-    return res.status(200).json(channelsWithLastMessage);
+      return res.status(200).json(channelsWithLastMessage);
+    } catch (err) {
+      return next({
+        status: 500,
+        message: 'Internal server error',
+        error: err,
+      });
+    }
   },
 
-  async getUsersFromPatientId(req, res) {
+  async getUsersFromPatientId(req, res, next) {
     const { patientId } = req.params;
 
-    const users = await postgresClient.user.findMany({
-      where: {
-        patients: {
-          some: {
-            id: parseInt(patientId, 10),
+    try {
+      const users = await postgresClient.user.findMany({
+        where: {
+          patients: {
+            some: {
+              id: parseInt(patientId, 10),
+            },
           },
         },
-      },
-      select: {
-        id: true,
-        email: true,
-        firstname: true,
-        lastname: true,
-        rppsCode: true,
-        profilePictureUrl: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+        select: {
+          id: true,
+          email: true,
+          firstname: true,
+          lastname: true,
+          rppsCode: true,
+          profilePictureUrl: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
 
-    return res.status(200).json(users);
+      return res.status(200).json(users);
+    } catch (err) {
+      return next({
+        status: 500,
+        message: 'Internal server error',
+        error: err,
+      });
+    }
   },
 
   async addUserToPatient(req, res, next) {
@@ -251,59 +299,67 @@ export default {
 
     let patientWithUsers;
 
-    if (email) {
-      patientWithUsers = await postgresClient.patient.update({
-        where: { id: parseInt(patientId, 10) },
-        data: {
-          users: {
-            connect: {
-              email,
+    try {
+      if (email) {
+        patientWithUsers = await postgresClient.patient.update({
+          where: { id: parseInt(patientId, 10) },
+          data: {
+            users: {
+              connect: {
+                email,
+              },
             },
           },
-        },
-        include: {
-          users: {
-            select: {
-              id: true,
-              email: true,
-              firstname: true,
-              lastname: true,
-              rppsCode: true,
-              profilePictureUrl: true,
-              createdAt: true,
-              updatedAt: true,
+          include: {
+            users: {
+              select: {
+                id: true,
+                email: true,
+                firstname: true,
+                lastname: true,
+                rppsCode: true,
+                profilePictureUrl: true,
+                createdAt: true,
+                updatedAt: true,
+              },
             },
           },
-        },
-      });
-    } else {
-      patientWithUsers = await postgresClient.patient.update({
-        where: { id: parseInt(patientId, 10) },
-        data: {
-          users: {
-            connect: {
-              rppsCode,
+        });
+      } else {
+        patientWithUsers = await postgresClient.patient.update({
+          where: { id: parseInt(patientId, 10) },
+          data: {
+            users: {
+              connect: {
+                rppsCode,
+              },
             },
           },
-        },
-        include: {
-          users: {
-            select: {
-              id: true,
-              email: true,
-              firstname: true,
-              lastname: true,
-              rppsCode: true,
-              profilePictureUrl: true,
-              createdAt: true,
-              updatedAt: true,
+          include: {
+            users: {
+              select: {
+                id: true,
+                email: true,
+                firstname: true,
+                lastname: true,
+                rppsCode: true,
+                profilePictureUrl: true,
+                createdAt: true,
+                updatedAt: true,
+              },
             },
           },
-        },
+        });
+      }
+
+      return res.status(200).json(patientWithUsers);
+    } catch (err) {
+      return next({
+        status: 500,
+        message: 'Internal server error',
+        error: err,
       });
     }
-
-    return res.status(200).json(patientWithUsers);
   },
 
   async removeUserFromPatient(req, res, next) {
@@ -329,35 +385,43 @@ export default {
       });
     }
 
-    const userToRemove = await postgresClient.user.findFirst({
-      where: {
-        OR: [{ email }, { rppsCode }],
-      },
-    });
-
-    if (!userToRemove) {
-      return next({
-        status: 404,
-        message: 'User not found.',
+    try {
+      const userToRemove = await postgresClient.user.findFirst({
+        where: {
+          OR: [{ email }, { rppsCode }],
+        },
       });
-    }
 
-    const updatedPatient = await postgresClient.patient.update({
-      where: {
-        id: parseInt(patientId, 10),
-      },
-      data: {
-        users: {
-          disconnect: {
-            id: parseInt(userToRemove.id, 10),
+      if (!userToRemove) {
+        return next({
+          status: 404,
+          message: 'User not found.',
+        });
+      }
+
+      const updatedPatient = await postgresClient.patient.update({
+        where: {
+          id: parseInt(patientId, 10),
+        },
+        data: {
+          users: {
+            disconnect: {
+              id: parseInt(userToRemove.id, 10),
+            },
           },
         },
-      },
-      include: {
-        users: true,
-      },
-    });
+        include: {
+          users: true,
+        },
+      });
 
-    return res.status(200).json(updatedPatient);
+      return res.status(200).json(updatedPatient);
+    } catch (err) {
+      return next({
+        status: 500,
+        message: 'Internal server error',
+        error: err,
+      });
+    }
   },
 };
