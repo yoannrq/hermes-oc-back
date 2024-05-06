@@ -4,7 +4,7 @@ Bienvenue sur le dépôt back-end de **Hermès**, une application de messagerie 
 
 Vous pouvez retrouver la version 1 de l'application à cette adresse : `en cours de déploiement`
 
-[Le répertoire Front-end est disponible à cette adresse ici !](https://github.com/yoannrq/hermes-oc-front)
+[Le répertoire Front-end est disponible ici !](https://github.com/yoannrq/hermes-oc-front)
 
 ## Objectifs Principaux
 
