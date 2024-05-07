@@ -63,6 +63,16 @@ export default {
       });
       delete newUser.password;
 
+      // Ajout de l'utilisateur dans l'équipe "Accueil"
+      await postgresClient.team.findUnique({
+        where: { name: 'Accueil' },
+        data: {
+          users: {
+            connect: { id: newUser.id },
+          },
+        },
+      });
+
       return res.status(201).json(newUser);
     } catch (error) {
       return next(error);

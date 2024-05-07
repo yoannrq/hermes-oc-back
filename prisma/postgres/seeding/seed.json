@@ -55,7 +55,7 @@
     {
       "ownerEmail": "alice@smith.com",
       "usersEmail": ["alice@smith.com", "charlie@davis.com"],
-      "name": "Manager Team",
+      "name": "Accueil",
       "color": "#f6f8fa"
     },
     {
