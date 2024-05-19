@@ -1,4 +1,4 @@
-﻿﻿# Hermès - Back-End
+﻿# Hermès - Back-End
 
 Bienvenue sur le dépôt back-end de **Hermès**, une application de messagerie conçue spécifiquement pour le personnel du domaine de la santé. Notre objectif est de faciliter les échanges entre les professionnels de santé, améliorant ainsi la coordination des soins et le suivi des patients.
 
