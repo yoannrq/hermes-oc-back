@@ -2,7 +2,9 @@
 
 Bienvenue sur le dépôt back-end de **Hermès**, une application de messagerie conçue spécifiquement pour le personnel du domaine de la santé. Notre objectif est de faciliter les échanges entre les professionnels de santé, améliorant ainsi la coordination des soins et le suivi des patients.
 
-[La documentation de l'API est disponible via Swagger ici](https://www.api-hermes.yoannrouquie.fr/api)
+![Image d'illustration de Hermès](/public/hermes1.png)
+![Image d'illustration de Hermès](/public/hermes2.png)
+![Image d'illustration de Hermès](/public/hermes3.png)
 
 [Le répertoire Front-end est disponible ici !](https://github.com/yoannrq/hermes-oc-front)
 
