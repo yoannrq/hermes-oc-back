@@ -2,9 +2,9 @@
 
 Bienvenue sur le dépôt back-end de **Hermès**, une application de messagerie conçue spécifiquement pour le personnel du domaine de la santé. Notre objectif est de faciliter les échanges entre les professionnels de santé, améliorant ainsi la coordination des soins et le suivi des patients.
 
-![Image d'illustration de Hermès](/public/hermes1.png)
-![Image d'illustration de Hermès](/public/hermes2.png)
-![Image d'illustration de Hermès](/public/hermes3.png)
+<img src="public/hermes1.png" alt="Screenshot de l'application" width="300">
+<img src="public/hermes2.png" alt="Screenshot de l'application" width="300">
+<img src="public/hermes3.png" alt="Screenshot de l'application" width="300">
 
 [Le répertoire Front-end est disponible ici !](https://github.com/yoannrq/hermes-oc-front)
 
